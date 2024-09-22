@@ -1,0 +1,16 @@
+{
+  "name": "release-action",
+  "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:20",
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "github.vscode-github-actions",
+        "VisualStudioExptTeam.vscodeintellicode"
+      ]
+    }
+  }
+}

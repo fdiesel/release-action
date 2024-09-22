@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cleanup Previous Build
+        run: rm -rf node_modules dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Cache Build
+        uses: actions/cache@v4
+        with:
+          path: dist
+          key: ${{ runner.os }}-dist-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-dist-
+
+      - name: Build
+        run: npm run build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      checks: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cleanup Previous Build
+        run: rm -rf node_modules dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Test
+        run: npm run test
+        env:
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_PHASE: prod
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Clean Build
+        run: rm -rf node_modules dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Restore Build
+        uses: actions/cache@v4
+        with:
+          path: dist
+          key: ${{ runner.os }}-dist-${{ hashFiles('package-lock.json') }}
+
+      - name: Commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: node_modules dist --force
+          message: 'chore: build'
+
+  release:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Release
+        id: release
+        uses: fdiesel/release-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          phase: prod
+
+      - name: Setup Node.js
+        if: steps.release.outputs.created == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Bump Package Version
+        if: steps.release.outputs.created == 'true'
+        run: npm version ${{ steps.release.outputs.version }} --allow-same-version --no-git-tag-version
+
+      - name: Commit
+        if: steps.release.outputs.created == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'chore: bump package version'
