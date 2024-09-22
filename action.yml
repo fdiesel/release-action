@@ -1,0 +1,34 @@
+name: Release
+description: Creates a release and tag based on conventional commits on GitHub
+branding:
+  icon: tag
+  color: blue
+author: fdiesel
+runs:
+  using: node20
+  main: dist/index.js
+  post: dist/post.js
+inputs:
+  token:
+    description: The github token. Use secrets.GITHUB_TOKEN
+    required: true
+  prefix:
+    description: Tag prefix
+    default: v
+    required: false
+  strategy:
+    description: The update strategy for the project type
+    required: false
+  first:
+    description: The first version
+    default: 0.1.0
+    required: false
+outputs:
+  created:
+    description: If a release was created
+  pre-release:
+    description: Pre-release type if the release is a pre-release
+  tag:
+    description: Tag name
+  version:
+    description: Semantic version

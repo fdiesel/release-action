@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches: main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Main
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Release
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          strategy: node
+          first: 1.0.0
+
+      - name: Deploy
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add -f node_modules dist
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "chore: update dist"
+            git push origin HEAD
+          fi
