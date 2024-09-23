@@ -3,7 +3,7 @@ import * as github from '@actions/github';
 import { Version } from './version';
 
 // inputs
-const token = core.getInput('GITHUB_TOKEN');
+const token = core.getInput('token');
 const prefix = core.getInput('prefix');
 const target = core.getInput('target') as 'alpha' | 'beta' | 'rc' | undefined;
 
