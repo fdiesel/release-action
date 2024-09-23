@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/fdiesel/github-action-release/compare/github-action-release-v1.0.0...github-action-release-v1.0.1) (2024-09-23)
+
+
+### Bug Fixes
+
+* token name ([bae48e0](https://github.com/fdiesel/github-action-release/commit/bae48e0b6d642dbbdbaf84ac9277ffd27e9fd588))
+
 ## 1.0.0 (2024-09-23)
 
 
