@@ -1,0 +1,35 @@
+name: Release
+description: Creates a release and tag in GitHub
+branding:
+  icon: tag
+  color: blue
+author: fdiesel
+inputs:
+  GITHUB_TOKEN:
+    description: The github token. Use secrets.GITHUB_TOKEN
+    required: true
+  dry_run:
+    description: Dry run
+    default: 'false'
+    required: false
+  prefix:
+    description: Tag prefix
+    default: 'v'
+    required: false
+  release_notes:
+    description: If release notes should be generated
+    default: 'true'
+    required: false
+  target:
+    description: Bump target (alpha, beta, rc)
+    required: false
+outputs:
+  tag:
+    description: Tag name
+  semver:
+    description: Semantic version
+  changelog:
+    description: List of all commits since last release
+runs:
+  using: node20
+  main: index.js
