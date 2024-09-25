@@ -29,7 +29,7 @@ jobs:
       - name: Release
         uses: ./
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DEPLOY_KEY }}
           strategy: node
           first: 1.0.0
 
