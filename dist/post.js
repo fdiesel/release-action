@@ -36,6 +36,7 @@ const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const child_process_1 = require("child_process");
 const strategy_1 = require("./strategy");
+const tag_1 = require("./tag");
 const token = core.getInput('token');
 const strategy = core.getInput('strategy')
     ? (0, strategy_1.parseStrategy)(core.getInput('strategy'))
@@ -54,15 +55,28 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         if (!releaseId || !nextVersion)
             return;
+        const nextTag = new tag_1.Tag(nextVersion);
+        // strategies
         switch (strategy) {
             case strategy_1.Strategy.NODE:
                 (0, child_process_1.execSync)(`git config user.name "GitHub Actions"`);
                 (0, child_process_1.execSync)(`git config user.email "action@github.com"`);
-                (0, child_process_1.execSync)(`npm version ${nextVersion} -m "chore(node): bump version to %s" --allow-same-version`);
+                (0, child_process_1.execSync)(`npm version ${nextTag.version.toString()} -m "chore(node): bump version to %s" --allow-same-version`);
                 (0, child_process_1.execSync)(`git push origin HEAD:${github.context.ref}`);
                 break;
         }
-        const { data } = yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), draft: false, target_commitish: yield getLatestCommitSha() }));
+        const latestCommitSha = yield getLatestCommitSha();
+        // major tag
+        const majorTagName = nextTag.toMajorString();
+        const { data: majorTag } = yield octokit.rest.git.getRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}` }));
+        if (majorTag) {
+            yield octokit.rest.git.updateRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}`, sha: latestCommitSha }));
+        }
+        else {
+            yield octokit.rest.git.createRef(Object.assign(Object.assign({}, repo), { ref: `refs/tags/${majorTagName}`, sha: latestCommitSha }));
+        }
+        // release
+        const { data } = yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), draft: false, target_commitish: latestCommitSha }));
         core.info(`Release created: ${data.html_url}`);
     });
 }

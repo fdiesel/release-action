@@ -13,6 +13,9 @@ class Tag {
             this.version = version_1.SemVer.fromString(name);
         }
     }
+    toMajorString() {
+        return `${this.prefix}${this.version.major}`;
+    }
     toString() {
         return `${this.prefix}${this.version.toString()}`;
     }
