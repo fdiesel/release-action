@@ -76,7 +76,7 @@ function createRelease(prevTag, nextTag, commits) {
 }
 function updateMajorTag(tag, latestCommitSha) {
     return __awaiter(this, void 0, void 0, function* () {
-        const majorTagName = tag.version.major.toString();
+        const majorTagName = tag.toMajorString();
         let majorTag;
         try {
             const { data } = yield octokit.rest.git.getRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}` }));
