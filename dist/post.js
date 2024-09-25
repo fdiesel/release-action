@@ -68,7 +68,17 @@ function run() {
         const latestCommitSha = yield getLatestCommitSha();
         // major tag
         const majorTagName = nextTag.toMajorString();
-        const { data: majorTag } = yield octokit.rest.git.getRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}` }));
+        let majorTag;
+        try {
+            const { data } = yield octokit.rest.git.getRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}` }));
+            majorTag = data;
+        }
+        catch (error) {
+            if (error.status !== 404) {
+                throw error;
+            }
+            majorTag = undefined;
+        }
         if (majorTag) {
             yield octokit.rest.git.updateRef(Object.assign(Object.assign({}, repo), { ref: `tags/${majorTagName}`, sha: latestCommitSha }));
         }
