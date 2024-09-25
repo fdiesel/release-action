@@ -12,8 +12,16 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Main
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+
+      - name: Clean Build
+        run: rm -rf node_modules dist
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,6 +34,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Commit Push Build
+        run: |
+          git add -f node_modules dist
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "chore: update dist"
+            git push origin HEAD
+          fi
+
       - name: Release
         id: release
         uses: ./
@@ -34,15 +50,8 @@ jobs:
           strategy: node
           first: 1.0.0
 
-      - name: Deploy
+      - name: Update Readme
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add -f node_modules dist
-          if [[ -n $(git status --porcelain) ]]; then
-            git commit -m "chore: update dist"
-            git push origin HEAD
-          fi
           sed -i "s/release-action@v[0-9]\+/release-action@v${{ steps.release.outputs.major }}/g" README.md
           git add README.md
           if [[ -n $(git status --porcelain) ]]; then
