@@ -33,51 +33,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
-const github = __importStar(require("@actions/github"));
-const commit_1 = require("./commit");
-const release_1 = require("./release");
-const tag_1 = require("./tag");
-const version_1 = require("./version");
-// inputs
-const token = core.getInput('token');
-// context
-const repo = github.context.repo;
-const octokit = github.getOctokit(token);
-const baseUri = `${github.context.serverUrl}/${repo.owner}/${repo.repo}`;
-function getLatestRelease() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { data: releases } = yield octokit.rest.repos.listReleases(Object.assign({}, repo));
-            const chronologicalReleases = releases.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            return chronologicalReleases.length > 0 ? chronologicalReleases[0] : null;
-        }
-        catch (error) {
-            if (error.status === 404)
-                return null;
-            core.setFailed(error.message);
-        }
-    });
-}
-function getLatestCommits(since) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield octokit.rest.repos.listCommits(Object.assign(Object.assign({}, repo), { sha: github.context.sha, since: since !== null && since !== void 0 ? since : undefined }));
-        return data.map((commit) => new commit_1.Commit(commit.sha, commit.html_url, commit.commit.message));
-    });
-}
-function createDraftRelease(prevTag, nextTag, commits) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield octokit.rest.repos.createRelease(Object.assign(Object.assign({}, repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body: (0, release_1.createReleaseBody)(baseUri, prevTag, nextTag, commits), draft: true, prerelease: !!nextTag.version.preRelease }));
-        core.info(`Release draft created: ${data.html_url}`);
-        core.saveState('releaseId', data.id);
-        core.saveState('nextVersion', nextTag.version.toString());
-    });
-}
+const commit_1 = require("./lib/commit");
+const github_1 = require("./lib/github");
+const strategy_1 = require("./lib/strategy");
+const tag_1 = require("./lib/tag");
+const version_1 = require("./lib/version");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
-        const prevRelease = yield getLatestRelease();
+        const prevRelease = yield (0, github_1.getLatestChronologicalRelease)();
         const prevTag = prevRelease ? new tag_1.Tag(prevRelease.tag_name) : undefined;
-        const commits = yield getLatestCommits(prevRelease === null || prevRelease === void 0 ? void 0 : prevRelease.published_at);
+        const commits = yield (0, github_1.getLatestCommits)(prevRelease === null || prevRelease === void 0 ? void 0 : prevRelease.published_at);
         let nextVersion;
         if (prevTag) {
             nextVersion = prevTag.version;
@@ -115,11 +81,12 @@ function run() {
             nextVersion = version_1.SemVer.first();
         }
         const nextTag = new tag_1.Tag(nextVersion.toString());
+        (0, strategy_1.runStrategies)(nextTag);
         core.setOutput('tag', nextTag.toString());
         core.setOutput('version', nextTag.version.toString());
         core.setOutput('major', nextTag.version.major.toString());
         if ((prevTag === null || prevTag === void 0 ? void 0 : prevTag.toString()) !== nextTag.toString()) {
-            createDraftRelease(prevTag, nextTag, commits);
+            (0, github_1.createRelease)(prevTag, nextTag, commits);
             core.setOutput('created', true);
             core.setOutput('pre-release', (_b = nextTag.version.preRelease) === null || _b === void 0 ? void 0 : _b.toString());
         }
