@@ -14,6 +14,10 @@ export class Tag {
     }
   }
 
+  public toMajorString(): string {
+    return `${this.prefix}${this.version.major}`;
+  } 
+
   public toString(): string {
     return `${this.prefix}${this.version.toString()}`;
   }
