@@ -68,6 +68,7 @@ async function run() {
       sha: latestCommitSha,
     });
   }
+  core.info(`Tag created / updated: ${majorTagName}`);
 
   // release
   const { data } = await octokit.rest.repos.updateRelease({
