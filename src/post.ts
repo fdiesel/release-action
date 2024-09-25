@@ -30,7 +30,7 @@ async function run() {
       execSync(
         `npm version ${nextVersion} -m "chore(node): bump version to %s" --allow-same-version`
       );
-      execSync(`git push origin HEAD:${github.context.ref}`);
+      execSync(`git push -f origin HEAD:${github.context.ref}`);
       break;
   }
   const { data } = await octokit.rest.repos.updateRelease({
