@@ -1,5 +1,5 @@
 {
-  "name": "github-action-release",
+  "name": "release-action",
   "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:20",
   "runArgs": ["--privileged"],
   "postCreateCommand": "chmod +x ./.devcontainer/setup.sh && ./.devcontainer/setup.sh",

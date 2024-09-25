@@ -1,8 +1,8 @@
-name: Release
+name: Release Semantic Version by Conventional Commits
 description: Creates a release and tag based on conventional commits on GitHub
 branding:
   icon: tag
-  color: blue
+  color: black
 author: fdiesel
 runs:
   using: node20
