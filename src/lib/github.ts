@@ -61,7 +61,7 @@ export async function updateMajorTag(
   tag: Tag,
   latestCommitSha: string
 ): Promise<void> {
-  const majorTagName = tag.version.major.toString();
+  const majorTagName = tag.toMajorString();
   let majorTag;
   try {
     const { data } = await octokit.rest.git.getRef({
