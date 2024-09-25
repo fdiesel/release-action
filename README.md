@@ -2,10 +2,6 @@
 
 Creates a new release based on conventional commits.
 
-The new release will be drafted during the main job and released during the post job.
-
-This ensures all commits created during the workflow are part of the release.
-
 ## Usage
 
 ```yml
