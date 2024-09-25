@@ -42,10 +42,19 @@ async function run() {
 
   // major tag
   const majorTagName = nextTag.toMajorString();
-  const { data: majorTag } = await octokit.rest.git.getRef({
-    ...repo,
-    ref: `tags/${majorTagName}`
-  });
+  let majorTag;
+  try {
+    const { data } = await octokit.rest.git.getRef({
+      ...repo,
+      ref: `tags/${majorTagName}`
+    });
+    majorTag = data;
+  } catch (error: any) {
+    if (error.status !== 404) {
+      throw error;
+    }
+    majorTag = undefined;
+  }
   if (majorTag) {
     await octokit.rest.git.updateRef({
       ...repo,
