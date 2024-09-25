@@ -85,6 +85,7 @@ function run() {
         else {
             yield octokit.rest.git.createRef(Object.assign(Object.assign({}, repo), { ref: `refs/tags/${majorTagName}`, sha: latestCommitSha }));
         }
+        core.info(`Tag created / updated: ${majorTagName}`);
         // release
         const { data } = yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), draft: false, target_commitish: latestCommitSha }));
         core.info(`Release created: ${data.html_url}`);
