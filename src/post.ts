@@ -24,7 +24,9 @@ async function run() {
     const latestCommitSha = await getLatestCommitSha();
     await updateTag(nextTag, latestCommitSha);
     await finalizeRelease(releaseId, latestCommitSha);
-    await upsertMajorTag(nextTag, latestCommitSha);
+    if (!nextTag.version.preRelease) {
+      await upsertMajorTag(nextTag, latestCommitSha);
+    }
   } else {
     await deleteRelease(releaseId);
     await deleteTag(nextTag);
