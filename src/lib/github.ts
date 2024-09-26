@@ -39,6 +39,14 @@ export async function getLatestCommits(
   );
 }
 
+export async function getLatestCommitSha(): Promise<string> {
+  const { data } = await octokit.rest.repos.listCommits({
+    ...repo,
+    per_page: 1
+  });
+  return data[0].sha;
+}
+
 export async function draftRelease(
   prevTag: Tag | undefined,
   nextTag: Tag,
@@ -91,11 +99,20 @@ export async function updateMajorTag(
   core.info(`Major tag sha updated: ${majorTagName}`);
 }
 
-export async function updateTag(tag: Tag, latestCommitSha: string) {
+export async function createTag(tag: Tag, commitSha: string) {
+  await octokit.rest.git.createRef({
+    ...repo,
+    ref: `tags/${tag.toString()}`,
+    sha: commitSha
+  });
+  core.info(`Tag created: ${tag.toString()}`);
+}
+
+export async function updateTag(tag: Tag, commitSha: string) {
   await octokit.rest.git.updateRef({
     ...repo,
     ref: `tags/${tag.toString()}`,
-    sha: latestCommitSha
+    sha: commitSha
   });
   core.info(`Tag sha updated: ${tag.toString()}`);
 }
