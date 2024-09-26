@@ -87,6 +87,9 @@ function run() {
         }
         else {
             nextVersion = version_1.SemVer.first();
+            if (preReleaseNamePreset) {
+                nextVersion = version_1.SemVer.bump(nextVersion, preReleaseNamePreset);
+            }
         }
         const nextTag = new tag_1.Tag(nextVersion.toString());
         (0, strategy_1.runStrategies)(nextTag);
