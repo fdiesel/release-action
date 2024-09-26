@@ -28,10 +28,7 @@ async function getLatestCommitSha(): Promise<string> {
 async function run() {
   core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
   core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
-  core.info(`GITHUB_JOB: ${core.getInput('GITHUB_JOB')}`);
-  core.info(`GITHUB_STATE: ${core.getInput('GITHUB_STATE')}`);
-  core.info(`GITHUB_JOB: ${core.getState('GITHUB_JOB')}`);
-  core.info(`GITHUB_STATE: ${core.getState('GITHUB_STATE')}`);
+  core.info(process.exitCode?.toString() ?? '');
 
   if (!releaseId || !nextVersion) return;
   const nextTag = new Tag(nextVersion);
