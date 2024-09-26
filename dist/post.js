@@ -49,10 +49,10 @@ function getLatestCommitSha() {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
+        var _a;
         core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
         core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
-        core.info((_b = (_a = process.exitCode) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '');
+        core.info(`process.exitCode: ${(_a = process.exitCode) === null || _a === void 0 ? void 0 : _a.toString()}`);
         if (!releaseId || !nextVersion)
             return;
         const nextTag = new tag_1.Tag(nextVersion);
