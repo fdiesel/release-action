@@ -109,7 +109,7 @@ function updateMajorTag(tag, latestCommitSha) {
 }
 function createTag(tag, commitSha) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield octokit.rest.git.createRef(Object.assign(Object.assign({}, repo), { ref: `tags/${tag.toString()}`, sha: commitSha }));
+        yield octokit.rest.git.createRef(Object.assign(Object.assign({}, repo), { ref: `refs/tags/${tag.toString()}`, sha: commitSha }));
         core.info(`Tag created: ${tag.toString()}`);
     });
 }
