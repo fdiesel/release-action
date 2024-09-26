@@ -47,15 +47,15 @@ function run() {
         const prevTag = prevRelease ? new tag_1.Tag(prevRelease.tag_name) : undefined;
         const commits = yield (0, github_1.getLatestCommits)(prevRelease === null || prevRelease === void 0 ? void 0 : prevRelease.published_at);
         let nextVersion;
+        const preReleaseNamePreset = core.getInput('pre-release')
+            ? (0, version_1.parseSemVerPreReleaseName)(core.getInput('pre-release'))
+            : undefined;
         if (prevTag) {
             nextVersion = prevTag.version;
             const latestPreReleaseName = (_a = commits.find((commit) => !!commit.preReleaseName)) === null || _a === void 0 ? void 0 : _a.preReleaseName;
-            let preReleaseBumpTarget = core.getInput('pre-release')
-                ? (0, version_1.parseBumpTarget)((0, version_1.parseSemVerPreReleaseName)(core.getInput('pre-release')))
+            const preReleaseBumpTarget = latestPreReleaseName
+                ? (0, version_1.parseBumpTarget)(latestPreReleaseName)
                 : undefined;
-            if (latestPreReleaseName) {
-                preReleaseBumpTarget = (0, version_1.parseBumpTarget)(latestPreReleaseName);
-            }
             let mainBumpTarget;
             for (const commit of commits) {
                 if (!commit.conventionalCommitMessage)
@@ -80,6 +80,9 @@ function run() {
             }
             if (preReleaseBumpTarget) {
                 nextVersion = version_1.SemVer.bump(nextVersion, preReleaseBumpTarget);
+            }
+            else if (preReleaseNamePreset) {
+                nextVersion = version_1.SemVer.bump(nextVersion, preReleaseNamePreset);
             }
         }
         else {

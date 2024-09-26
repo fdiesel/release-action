@@ -72,6 +72,9 @@ class SemVer {
             case BumpTarget.Alpha:
             case BumpTarget.Beta:
             case BumpTarget.Rc:
+            case SemVerPreReleaseName.Alpha:
+            case SemVerPreReleaseName.Beta:
+            case SemVerPreReleaseName.Rc:
                 const preReleaseName = (0, exports.parseSemVerPreReleaseName)(target);
                 if (!version.preRelease)
                     return new SemVer(version.major, version.minor, version.patch, new SemVerPreRelease(preReleaseName));
