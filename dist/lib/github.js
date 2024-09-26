@@ -34,8 +34,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLatestChronologicalRelease = getLatestChronologicalRelease;
 exports.getLatestCommits = getLatestCommits;
+exports.getLatestCommitSha = getLatestCommitSha;
 exports.draftRelease = draftRelease;
 exports.updateMajorTag = updateMajorTag;
+exports.createTag = createTag;
 exports.updateTag = updateTag;
 exports.deleteTag = deleteTag;
 exports.finalizeRelease = finalizeRelease;
@@ -68,10 +70,16 @@ function getLatestCommits(since) {
         return data.map((commit) => new commit_1.Commit(commit.sha, commit.html_url, commit.commit.message));
     });
 }
+function getLatestCommitSha() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data } = yield octokit.rest.repos.listCommits(Object.assign(Object.assign({}, repo), { per_page: 1 }));
+        return data[0].sha;
+    });
+}
 function draftRelease(prevTag, nextTag, commits) {
     return __awaiter(this, void 0, void 0, function* () {
         const { data } = yield octokit.rest.repos.createRelease(Object.assign(Object.assign({}, repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body: (0, release_1.createReleaseBody)(baseUri, prevTag, nextTag, commits), prerelease: !!nextTag.version.preRelease, draft: true }));
-        core.info(`Release created: ${data.html_url}`);
+        core.info(`Release drafted: ${data.html_url}`);
         core.saveState('releaseId', data.id);
         core.saveState('nextVersion', nextTag.version.toString());
     });
@@ -99,9 +107,15 @@ function updateMajorTag(tag, latestCommitSha) {
         core.info(`Major tag sha updated: ${majorTagName}`);
     });
 }
-function updateTag(tag, latestCommitSha) {
+function createTag(tag, commitSha) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield octokit.rest.git.updateRef(Object.assign(Object.assign({}, repo), { ref: `tags/${tag.toString()}`, sha: latestCommitSha }));
+        yield octokit.rest.git.createRef(Object.assign(Object.assign({}, repo), { ref: `tags/${tag.toString()}`, sha: commitSha }));
+        core.info(`Tag created: ${tag.toString()}`);
+    });
+}
+function updateTag(tag, commitSha) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield octokit.rest.git.updateRef(Object.assign(Object.assign({}, repo), { ref: `tags/${tag.toString()}`, sha: commitSha }));
         core.info(`Tag sha updated: ${tag.toString()}`);
     });
 }

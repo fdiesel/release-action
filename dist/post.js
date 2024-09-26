@@ -33,22 +33,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
-const github = __importStar(require("@actions/github"));
 const github_1 = require("./lib/github");
 const tag_1 = require("./lib/tag");
 const utils_1 = require("./lib/utils");
-const token = core.getInput('token');
 const status = core.getInput('_job_status');
 const releaseId = core.getState('releaseId');
 const nextVersion = core.getState('nextVersion');
-const repo = github.context.repo;
-const octokit = github.getOctokit(token);
-function getLatestCommitSha() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield octokit.rest.repos.listCommits(Object.assign(Object.assign({}, repo), { per_page: 1 }));
-        return data[0].sha;
-    });
-}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, utils_1.displayVersion)();
@@ -56,7 +46,7 @@ function run() {
             return;
         const nextTag = new tag_1.Tag(nextVersion);
         if (status === 'success') {
-            const latestCommitSha = yield getLatestCommitSha();
+            const latestCommitSha = yield (0, github_1.getLatestCommitSha)();
             yield (0, github_1.updateTag)(nextTag, latestCommitSha);
             yield (0, github_1.finalizeRelease)(releaseId, latestCommitSha);
             yield (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
