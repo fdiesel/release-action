@@ -49,7 +49,9 @@ function run() {
             const latestCommitSha = yield (0, github_1.getLatestCommitSha)();
             yield (0, github_1.updateTag)(nextTag, latestCommitSha);
             yield (0, github_1.finalizeRelease)(releaseId, latestCommitSha);
-            yield (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
+            if (!nextTag.version.preRelease) {
+                yield (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
+            }
         }
         else {
             yield (0, github_1.deleteRelease)(releaseId);
