@@ -37,7 +37,9 @@ exports.getLatestCommits = getLatestCommits;
 exports.createRelease = createRelease;
 exports.updateMajorTag = updateMajorTag;
 exports.updateTag = updateTag;
+exports.deleteTag = deleteTag;
 exports.updateRelease = updateRelease;
+exports.deleteRelease = deleteRelease;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const commit_1 = require("./commit");
@@ -103,9 +105,21 @@ function updateTag(tag, latestCommitSha) {
         core.info(`Tag sha updated: ${tag.toString()}`);
     });
 }
+function deleteTag(tag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield octokit.rest.git.deleteRef(Object.assign(Object.assign({}, repo), { ref: `tags/${tag.toString()}` }));
+        core.info(`Tag deleted: ${tag.toString()}`);
+    });
+}
 function updateRelease(releaseId, latestCommitSha) {
     return __awaiter(this, void 0, void 0, function* () {
         const { data: { tag_name } } = yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), target_commitish: latestCommitSha }));
         core.info(`Release sha updated: ${tag_name}`);
+    });
+}
+function deleteRelease(releaseId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data: { tag_name } } = yield octokit.rest.repos.deleteRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId) }));
+        core.info(`Release deleted: ${tag_name}`);
     });
 }

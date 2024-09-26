@@ -52,10 +52,16 @@ function run() {
         if (!releaseId || !nextVersion)
             return;
         const nextTag = new tag_1.Tag(nextVersion);
-        const latestCommitSha = yield getLatestCommitSha();
-        (0, github_1.updateTag)(nextTag, latestCommitSha);
-        (0, github_1.updateRelease)(releaseId, latestCommitSha);
-        (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
+        if (process.exitCode === 0) {
+            const latestCommitSha = yield getLatestCommitSha();
+            yield (0, github_1.updateTag)(nextTag, latestCommitSha);
+            yield (0, github_1.updateRelease)(releaseId, latestCommitSha);
+            yield (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
+        }
+        else {
+            yield (0, github_1.deleteRelease)(releaseId);
+            yield (0, github_1.deleteTag)(nextTag);
+        }
     });
 }
 run();
