@@ -37,6 +37,7 @@ const github = __importStar(require("@actions/github"));
 const github_1 = require("./lib/github");
 const tag_1 = require("./lib/tag");
 const token = core.getInput('token');
+const status = core.getInput('_job_status');
 const releaseId = core.getState('releaseId');
 const nextVersion = core.getState('nextVersion');
 const repo = github.context.repo;
@@ -49,15 +50,10 @@ function getLatestCommitSha() {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
-        core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
-        core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
-        core.info(`process.exitCode: ${(_a = process.exitCode) === null || _a === void 0 ? void 0 : _a.toString()}`);
-        core.info(`_job_status: ${core.getInput('_job_status')}`);
         if (!releaseId || !nextVersion)
             return;
         const nextTag = new tag_1.Tag(nextVersion);
-        if (process.exitCode === 0) {
+        if (status === 'success') {
             const latestCommitSha = yield getLatestCommitSha();
             yield (0, github_1.updateTag)(nextTag, latestCommitSha);
             yield (0, github_1.updateRelease)(releaseId, latestCommitSha);
