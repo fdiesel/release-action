@@ -85,6 +85,7 @@ function run() {
         const nextTag = new tag_1.Tag(nextVersion.toString());
         (0, strategy_1.runStrategies)(nextTag);
         core.setOutput('tag', nextTag.toString());
+        core.setOutput('majorTag', nextTag.toMajorString());
         core.setOutput('version', nextTag.version.toString());
         core.setOutput('major', nextTag.version.major.toString());
         if ((prevTag === null || prevTag === void 0 ? void 0 : prevTag.toString()) !== nextTag.toString()) {
