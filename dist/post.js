@@ -36,6 +36,7 @@ const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const github_1 = require("./lib/github");
 const tag_1 = require("./lib/tag");
+const utils_1 = require("./lib/utils");
 const token = core.getInput('token');
 const status = core.getInput('_job_status');
 const releaseId = core.getState('releaseId');
@@ -50,6 +51,7 @@ function getLatestCommitSha() {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        (0, utils_1.displayVersion)();
         if (!releaseId || !nextVersion)
             return;
         const nextTag = new tag_1.Tag(nextVersion);

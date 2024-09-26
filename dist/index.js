@@ -37,10 +37,12 @@ const commit_1 = require("./lib/commit");
 const github_1 = require("./lib/github");
 const strategy_1 = require("./lib/strategy");
 const tag_1 = require("./lib/tag");
+const utils_1 = require("./lib/utils");
 const version_1 = require("./lib/version");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b;
+        (0, utils_1.displayVersion)();
         const prevRelease = yield (0, github_1.getLatestChronologicalRelease)();
         const prevTag = prevRelease ? new tag_1.Tag(prevRelease.tag_name) : undefined;
         const commits = yield (0, github_1.getLatestCommits)(prevRelease === null || prevRelease === void 0 ? void 0 : prevRelease.published_at);
