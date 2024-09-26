@@ -23,6 +23,9 @@ inputs:
     description: The first version
     default: 0.1.0
     required: false
+  pre-release:
+    description: Make all releases pre-releases. E.g. during initial development.
+    required: false
   _job_status:
     description: DO NOT TOUCH
     default: ${{ job.status }}

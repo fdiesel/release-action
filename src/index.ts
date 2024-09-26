@@ -1,14 +1,19 @@
 import * as core from '@actions/core';
 import { ConventionalCommitType } from './lib/commit';
 import {
-    draftRelease,
-    getLatestChronologicalRelease,
-    getLatestCommits
+  draftRelease,
+  getLatestChronologicalRelease,
+  getLatestCommits
 } from './lib/github';
 import { runStrategies } from './lib/strategy';
 import { Tag } from './lib/tag';
 import { displayVersion } from './lib/utils';
-import { BumpTarget, parseBumpTarget, SemVer } from './lib/version';
+import {
+  BumpTarget,
+  parseBumpTarget,
+  parseSemVerPreReleaseName,
+  SemVer
+} from './lib/version';
 
 async function run() {
   displayVersion();
@@ -24,9 +29,12 @@ async function run() {
     const latestPreReleaseName = commits.find(
       (commit) => !!commit.preReleaseName
     )?.preReleaseName;
-    const preReleaseBumpTarget = latestPreReleaseName
-      ? parseBumpTarget(latestPreReleaseName)
+    let preReleaseBumpTarget = core.getInput('pre-release')
+      ? parseBumpTarget(parseSemVerPreReleaseName(core.getInput('pre-release')))
       : undefined;
+    if (latestPreReleaseName) {
+      preReleaseBumpTarget = parseBumpTarget(latestPreReleaseName);
+    }
 
     let mainBumpTarget: BumpTarget | undefined;
 
