@@ -112,22 +112,18 @@ export async function updateRelease(
   releaseId: string,
   latestCommitSha: string
 ) {
-  const {
-    data: { tag_name }
-  } = await octokit.rest.repos.updateRelease({
+  await octokit.rest.repos.updateRelease({
     ...repo,
     release_id: parseInt(releaseId),
     target_commitish: latestCommitSha
   });
-  core.info(`Release sha updated: ${tag_name}`);
+  core.info(`Release sha updated: ${releaseId}`);
 }
 
 export async function deleteRelease(releaseId: string) {
-  const {
-    data: { tag_name }
-  } = await octokit.rest.repos.deleteRelease({
+  await octokit.rest.repos.deleteRelease({
     ...repo,
     release_id: parseInt(releaseId)
   });
-  core.info(`Release deleted: ${tag_name}`);
+  core.info(`Release deleted: ${releaseId}`);
 }
