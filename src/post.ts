@@ -10,6 +10,7 @@ import {
 import { Tag } from './lib/tag';
 
 const token = core.getInput('token');
+const status = core.getInput('_job_status') as 'success' | 'failure';
 
 const releaseId = core.getState('releaseId');
 const nextVersion = core.getState('nextVersion');
@@ -26,15 +27,10 @@ async function getLatestCommitSha(): Promise<string> {
 }
 
 async function run() {
-  core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
-  core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
-  core.info(`process.exitCode: ${process.exitCode?.toString()}`);
-  core.info(`_job_status: ${core.getInput('_job_status')}`);
-
   if (!releaseId || !nextVersion) return;
   const nextTag = new Tag(nextVersion);
 
-  if (process.exitCode === 0) {
+  if (status === 'success') {
     const latestCommitSha = await getLatestCommitSha();
     await updateTag(nextTag, latestCommitSha);
     await updateRelease(releaseId, latestCommitSha);
