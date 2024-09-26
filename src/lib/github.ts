@@ -102,7 +102,7 @@ export async function updateMajorTag(
 export async function createTag(tag: Tag, commitSha: string) {
   await octokit.rest.git.createRef({
     ...repo,
-    ref: `tags/${tag.toString()}`,
+    ref: `refs/tags/${tag.toString()}`,
     sha: commitSha
   });
   core.info(`Tag created: ${tag.toString()}`);
