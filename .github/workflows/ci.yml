@@ -52,6 +52,7 @@ jobs:
 
       - name: Update Readme
         run: |
+          exit 1
           sed -i "s/release-action@v[0-9]\+/release-action@v${{ steps.release.outputs.major }}/g" README.md
           git add README.md
           if [[ -n $(git status --porcelain) ]]; then
