@@ -49,6 +49,12 @@ function getLatestCommitSha() {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
+        core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
+        core.info(`GITHUB_JOB: ${core.getInput('GITHUB_JOB')}`);
+        core.info(`GITHUB_STATE: ${core.getInput('GITHUB_STATE')}`);
+        core.info(`GITHUB_JOB: ${core.getState('GITHUB_JOB')}`);
+        core.info(`GITHUB_STATE: ${core.getState('GITHUB_STATE')}`);
         if (!releaseId || !nextVersion)
             return;
         const nextTag = new tag_1.Tag(nextVersion);
