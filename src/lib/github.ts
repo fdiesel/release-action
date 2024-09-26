@@ -52,7 +52,7 @@ export async function draftRelease(
     prerelease: !!nextTag.version.preRelease,
     draft: true
   });
-  core.info(`Release created: ${data.html_url}`);
+  core.info(`Release drafted: ${data.html_url}`);
   core.saveState('releaseId', data.id);
   core.saveState('nextVersion', nextTag.version.toString());
 }
