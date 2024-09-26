@@ -23,6 +23,9 @@ inputs:
     description: The first version
     default: 0.1.0
     required: false
+  _job_status:
+    description: DO NOT TOUCH
+    default: ${{ job.status }}
 outputs:
   created:
     description: If a release was created

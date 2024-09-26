@@ -29,6 +29,7 @@ async function run() {
   core.info(`GITHUB_JOB: ${process.env['GITHUB_JOB']}`);
   core.info(`GITHUB_STATE: ${process.env['GITHUB_STATE']}`);
   core.info(`process.exitCode: ${process.exitCode?.toString()}`);
+  core.info(`_job_status: ${core.getInput('_job_status')}`);
 
   if (!releaseId || !nextVersion) return;
   const nextTag = new Tag(nextVersion);
