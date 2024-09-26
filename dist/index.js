@@ -50,9 +50,12 @@ function run() {
         if (prevTag) {
             nextVersion = prevTag.version;
             const latestPreReleaseName = (_a = commits.find((commit) => !!commit.preReleaseName)) === null || _a === void 0 ? void 0 : _a.preReleaseName;
-            const preReleaseBumpTarget = latestPreReleaseName
-                ? (0, version_1.parseBumpTarget)(latestPreReleaseName)
+            let preReleaseBumpTarget = core.getInput('pre-release')
+                ? (0, version_1.parseBumpTarget)((0, version_1.parseSemVerPreReleaseName)(core.getInput('pre-release')))
                 : undefined;
+            if (latestPreReleaseName) {
+                preReleaseBumpTarget = (0, version_1.parseBumpTarget)(latestPreReleaseName);
+            }
             let mainBumpTarget;
             for (const commit of commits) {
                 if (!commit.conventionalCommitMessage)
