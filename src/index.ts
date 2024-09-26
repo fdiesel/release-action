@@ -72,6 +72,9 @@ async function run() {
     }
   } else {
     nextVersion = SemVer.first();
+    if (preReleaseNamePreset) {
+      nextVersion = SemVer.bump(nextVersion, preReleaseNamePreset);
+    }
   }
 
   const nextTag = new Tag(nextVersion.toString());
