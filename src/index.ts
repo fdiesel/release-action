@@ -24,6 +24,9 @@ async function run() {
   const commits = await getLatestCommits(prevRelease?.published_at);
 
   let nextVersion: SemVer;
+  const preReleaseNamePreset = core.getInput('pre-release')
+    ? parseSemVerPreReleaseName(core.getInput('pre-release'))
+    : undefined;
 
   if (prevTag) {
     nextVersion = prevTag.version;
@@ -31,12 +34,9 @@ async function run() {
     const latestPreReleaseName = commits.find(
       (commit) => !!commit.preReleaseName
     )?.preReleaseName;
-    let preReleaseBumpTarget = core.getInput('pre-release')
-      ? parseBumpTarget(parseSemVerPreReleaseName(core.getInput('pre-release')))
+    const preReleaseBumpTarget = latestPreReleaseName
+      ? parseBumpTarget(latestPreReleaseName)
       : undefined;
-    if (latestPreReleaseName) {
-      preReleaseBumpTarget = parseBumpTarget(latestPreReleaseName);
-    }
 
     let mainBumpTarget: BumpTarget | undefined;
 
@@ -67,6 +67,8 @@ async function run() {
 
     if (preReleaseBumpTarget) {
       nextVersion = SemVer.bump(nextVersion, preReleaseBumpTarget);
+    } else if (preReleaseNamePreset) {
+      nextVersion = SemVer.bump(nextVersion, preReleaseNamePreset);
     }
   } else {
     nextVersion = SemVer.first();

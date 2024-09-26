@@ -110,7 +110,10 @@ export class SemVer {
     );
   }
 
-  public static bump(version: SemVer, target: BumpTarget): SemVer {
+  public static bump(
+    version: SemVer,
+    target: BumpTarget | SemVerPreReleaseName
+  ): SemVer {
     switch (target) {
       case BumpTarget.Major:
         return new SemVer(version.major + 1, 0, 0);
@@ -121,6 +124,9 @@ export class SemVer {
       case BumpTarget.Alpha:
       case BumpTarget.Beta:
       case BumpTarget.Rc:
+      case SemVerPreReleaseName.Alpha:
+      case SemVerPreReleaseName.Beta:
+      case SemVerPreReleaseName.Rc:
         const preReleaseName = parseSemVerPreReleaseName(target);
         if (!version.preRelease)
           return new SemVer(
