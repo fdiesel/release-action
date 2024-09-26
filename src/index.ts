@@ -1,9 +1,9 @@
 import * as core from '@actions/core';
 import { ConventionalCommitType } from './lib/commit';
 import {
-  createRelease,
-  getLatestChronologicalRelease,
-  getLatestCommits
+    draftRelease,
+    getLatestChronologicalRelease,
+    getLatestCommits
 } from './lib/github';
 import { runStrategies } from './lib/strategy';
 import { Tag } from './lib/tag';
@@ -72,7 +72,7 @@ async function run() {
   core.setOutput('major', nextTag.version.major.toString());
 
   if (prevTag?.toString() !== nextTag.toString()) {
-    createRelease(prevTag, nextTag, commits);
+    draftRelease(prevTag, nextTag, commits);
     core.setOutput('created', true);
     core.setOutput('pre-release', nextTag.version.preRelease?.toString());
   } else {

@@ -39,7 +39,7 @@ export async function getLatestCommits(
   );
 }
 
-export async function createRelease(
+export async function draftRelease(
   prevTag: Tag | undefined,
   nextTag: Tag,
   commits: Commit[]
@@ -50,7 +50,7 @@ export async function createRelease(
     name: nextTag.toString(),
     body: createReleaseBody(baseUri, prevTag, nextTag, commits),
     prerelease: !!nextTag.version.preRelease,
-    draft: false
+    draft: true
   });
   core.info(`Release created: ${data.html_url}`);
   core.saveState('releaseId', data.id);
@@ -108,14 +108,15 @@ export async function deleteTag(tag: Tag) {
   core.info(`Tag deleted: ${tag.toString()}`);
 }
 
-export async function updateRelease(
+export async function finalizeRelease(
   releaseId: string,
   latestCommitSha: string
 ) {
   await octokit.rest.repos.updateRelease({
     ...repo,
     release_id: parseInt(releaseId),
-    target_commitish: latestCommitSha
+    target_commitish: latestCommitSha,
+    draft: false
   });
   core.info(`Release sha updated: ${releaseId}`);
 }

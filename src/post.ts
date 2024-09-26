@@ -1,11 +1,11 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import {
-  deleteRelease,
-  deleteTag,
-  updateRelease,
-  updateTag,
-  updateMajorTag as upsertMajorTag
+    deleteRelease,
+    deleteTag,
+    finalizeRelease,
+    updateTag,
+    updateMajorTag as upsertMajorTag
 } from './lib/github';
 import { Tag } from './lib/tag';
 import { displayVersion } from './lib/utils';
@@ -35,7 +35,7 @@ async function run() {
   if (status === 'success') {
     const latestCommitSha = await getLatestCommitSha();
     await updateTag(nextTag, latestCommitSha);
-    await updateRelease(releaseId, latestCommitSha);
+    await finalizeRelease(releaseId, latestCommitSha);
     await upsertMajorTag(nextTag, latestCommitSha);
   } else {
     await deleteRelease(releaseId);
