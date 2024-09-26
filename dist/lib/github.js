@@ -113,13 +113,13 @@ function deleteTag(tag) {
 }
 function updateRelease(releaseId, latestCommitSha) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { data: { tag_name } } = yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), target_commitish: latestCommitSha }));
-        core.info(`Release sha updated: ${tag_name}`);
+        yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), target_commitish: latestCommitSha }));
+        core.info(`Release sha updated: ${releaseId}`);
     });
 }
 function deleteRelease(releaseId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { data: { tag_name } } = yield octokit.rest.repos.deleteRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId) }));
-        core.info(`Release deleted: ${tag_name}`);
+        yield octokit.rest.repos.deleteRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId) }));
+        core.info(`Release deleted: ${releaseId}`);
     });
 }
