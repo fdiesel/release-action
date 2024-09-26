@@ -100,6 +100,14 @@ export async function updateTag(tag: Tag, latestCommitSha: string) {
   core.info(`Tag sha updated: ${tag.toString()}`);
 }
 
+export async function deleteTag(tag: Tag) {
+  await octokit.rest.git.deleteRef({
+    ...repo,
+    ref: `tags/${tag.toString()}`
+  });
+  core.info(`Tag deleted: ${tag.toString()}`);
+}
+
 export async function updateRelease(
   releaseId: string,
   latestCommitSha: string
@@ -112,4 +120,14 @@ export async function updateRelease(
     target_commitish: latestCommitSha
   });
   core.info(`Release sha updated: ${tag_name}`);
+}
+
+export async function deleteRelease(releaseId: string) {
+  const {
+    data: { tag_name }
+  } = await octokit.rest.repos.deleteRelease({
+    ...repo,
+    release_id: parseInt(releaseId)
+  });
+  core.info(`Release deleted: ${tag_name}`);
 }

@@ -1,6 +1,12 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { updateMajorTag, updateRelease, updateTag } from './lib/github';
+import {
+  deleteRelease,
+  deleteTag,
+  updateRelease,
+  updateTag,
+  updateMajorTag as upsertMajorTag
+} from './lib/github';
 import { Tag } from './lib/tag';
 
 const token = core.getInput('token');
@@ -23,13 +29,15 @@ async function run() {
   if (!releaseId || !nextVersion) return;
   const nextTag = new Tag(nextVersion);
 
-  const latestCommitSha = await getLatestCommitSha();
-
-  updateTag(nextTag, latestCommitSha);
-
-  updateRelease(releaseId, latestCommitSha);
-
-  updateMajorTag(nextTag, latestCommitSha);
+  if (process.exitCode === 0) {
+    const latestCommitSha = await getLatestCommitSha();
+    await updateTag(nextTag, latestCommitSha);
+    await updateRelease(releaseId, latestCommitSha);
+    await upsertMajorTag(nextTag, latestCommitSha);
+  } else {
+    await deleteRelease(releaseId);
+    await deleteTag(nextTag);
+  }
 }
 
 run();
