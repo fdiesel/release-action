@@ -2,6 +2,8 @@
 
 Creates a new release based on conventional commits.
 
+Reverts the release in the post job in case a step has failed.
+
 ## Usage
 
 ```yml
@@ -46,4 +48,6 @@ If no strategy is set, the workflow will only use git and not update any files.
 | created     | 'true' if a release was created                |
 | pre-release | 'true' if the created release is a pre-release |
 | tag         | tag name                                       |
+| majorTag    | major version tag name                         |
 | version     | semantic version                               |
+| major       | major version                                  |

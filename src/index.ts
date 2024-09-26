@@ -67,6 +67,7 @@ async function run() {
   runStrategies(nextTag);
 
   core.setOutput('tag', nextTag.toString());
+  core.setOutput('majorTag', nextTag.toMajorString());
   core.setOutput('version', nextTag.version.toString());
   core.setOutput('major', nextTag.version.major.toString());
 
