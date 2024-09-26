@@ -34,11 +34,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLatestChronologicalRelease = getLatestChronologicalRelease;
 exports.getLatestCommits = getLatestCommits;
-exports.createRelease = createRelease;
+exports.draftRelease = draftRelease;
 exports.updateMajorTag = updateMajorTag;
 exports.updateTag = updateTag;
 exports.deleteTag = deleteTag;
-exports.updateRelease = updateRelease;
+exports.finalizeRelease = finalizeRelease;
 exports.deleteRelease = deleteRelease;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
@@ -68,9 +68,9 @@ function getLatestCommits(since) {
         return data.map((commit) => new commit_1.Commit(commit.sha, commit.html_url, commit.commit.message));
     });
 }
-function createRelease(prevTag, nextTag, commits) {
+function draftRelease(prevTag, nextTag, commits) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { data } = yield octokit.rest.repos.createRelease(Object.assign(Object.assign({}, repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body: (0, release_1.createReleaseBody)(baseUri, prevTag, nextTag, commits), prerelease: !!nextTag.version.preRelease, draft: false }));
+        const { data } = yield octokit.rest.repos.createRelease(Object.assign(Object.assign({}, repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body: (0, release_1.createReleaseBody)(baseUri, prevTag, nextTag, commits), prerelease: !!nextTag.version.preRelease, draft: true }));
         core.info(`Release created: ${data.html_url}`);
         core.saveState('releaseId', data.id);
         core.saveState('nextVersion', nextTag.version.toString());
@@ -111,9 +111,9 @@ function deleteTag(tag) {
         core.info(`Tag deleted: ${tag.toString()}`);
     });
 }
-function updateRelease(releaseId, latestCommitSha) {
+function finalizeRelease(releaseId, latestCommitSha) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), target_commitish: latestCommitSha }));
+        yield octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, repo), { release_id: parseInt(releaseId), target_commitish: latestCommitSha, draft: false }));
         core.info(`Release sha updated: ${releaseId}`);
     });
 }

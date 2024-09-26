@@ -58,7 +58,7 @@ function run() {
         if (status === 'success') {
             const latestCommitSha = yield getLatestCommitSha();
             yield (0, github_1.updateTag)(nextTag, latestCommitSha);
-            yield (0, github_1.updateRelease)(releaseId, latestCommitSha);
+            yield (0, github_1.finalizeRelease)(releaseId, latestCommitSha);
             yield (0, github_1.updateMajorTag)(nextTag, latestCommitSha);
         }
         else {

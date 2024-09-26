@@ -89,7 +89,7 @@ function run() {
         core.setOutput('version', nextTag.version.toString());
         core.setOutput('major', nextTag.version.major.toString());
         if ((prevTag === null || prevTag === void 0 ? void 0 : prevTag.toString()) !== nextTag.toString()) {
-            (0, github_1.createRelease)(prevTag, nextTag, commits);
+            (0, github_1.draftRelease)(prevTag, nextTag, commits);
             core.setOutput('created', true);
             core.setOutput('pre-release', (_b = nextTag.version.preRelease) === null || _b === void 0 ? void 0 : _b.toString());
         }
