@@ -6,16 +6,8 @@ const version_1 = require("./version");
 var ConventionalCommitType;
 (function (ConventionalCommitType) {
     ConventionalCommitType["BREAKING_CHANGE"] = "BREAKING CHANGE";
-    ConventionalCommitType["BUILD"] = "build";
-    ConventionalCommitType["CHORE"] = "chore";
-    ConventionalCommitType["CI"] = "ci";
-    ConventionalCommitType["DOCS"] = "docs";
     ConventionalCommitType["FEAT"] = "feat";
     ConventionalCommitType["FIX"] = "fix";
-    ConventionalCommitType["PERF"] = "perf";
-    ConventionalCommitType["REFACTOR"] = "refactor";
-    ConventionalCommitType["STYLE"] = "style";
-    ConventionalCommitType["TEST"] = "test";
 })(ConventionalCommitType || (exports.ConventionalCommitType = ConventionalCommitType = {}));
 exports.parseConventionalCommitType = (0, parser_1.enumParserFactory)(ConventionalCommitType, (type) => type.toLowerCase(), (value) => value.toLowerCase().replace('-', ' '));
 class ConventionalCommitMessage {
