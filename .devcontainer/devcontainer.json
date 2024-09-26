@@ -1,11 +1,8 @@
 {
   "name": "release-action",
   "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:20",
-  "runArgs": ["--privileged"],
-  "postCreateCommand": "chmod +x ./.devcontainer/setup.sh && ./.devcontainer/setup.sh",
   "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {
