@@ -7,16 +7,8 @@ import { parseSemVerPreReleaseName, SemVerPreReleaseName } from './version';
 
 export enum ConventionalCommitType {
   BREAKING_CHANGE = 'BREAKING CHANGE',
-  BUILD = 'build',
-  CHORE = 'chore',
-  CI = 'ci',
-  DOCS = 'docs',
   FEAT = 'feat',
-  FIX = 'fix',
-  PERF = 'perf',
-  REFACTOR = 'refactor',
-  STYLE = 'style',
-  TEST = 'test'
+  FIX = 'fix'
 }
 
 export const parseConventionalCommitType = enumParserFactory(
