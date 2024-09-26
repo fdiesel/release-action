@@ -7,9 +7,11 @@ import {
 } from './lib/github';
 import { runStrategies } from './lib/strategy';
 import { Tag } from './lib/tag';
+import { displayVersion } from './lib/utils';
 import { BumpTarget, parseBumpTarget, SemVer } from './lib/version';
 
 async function run() {
+  displayVersion();
   const prevRelease = await getLatestChronologicalRelease();
   const prevTag = prevRelease ? new Tag(prevRelease.tag_name) : undefined;
   const commits = await getLatestCommits(prevRelease?.published_at);

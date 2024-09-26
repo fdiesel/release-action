@@ -8,6 +8,7 @@ import {
   updateMajorTag as upsertMajorTag
 } from './lib/github';
 import { Tag } from './lib/tag';
+import { displayVersion } from './lib/utils';
 
 const token = core.getInput('token');
 const status = core.getInput('_job_status') as 'success' | 'failure';
@@ -27,6 +28,7 @@ async function getLatestCommitSha(): Promise<string> {
 }
 
 async function run() {
+  displayVersion();
   if (!releaseId || !nextVersion) return;
   const nextTag = new Tag(nextVersion);
 
