@@ -86,4 +86,4 @@ class SemVer {
     }
 }
 exports.SemVer = SemVer;
-SemVer.matchSemVer = (0, parser_1.matchWithRegexFactory)(/^(\d+)\.(\d+)\.(\d+)(?:-([alpha|beta|rc]+)(?:\.(\d+))?)?$/, 'major', 'minor', 'patch', 'preReleaseName', 'preReleaseVersion');
+SemVer.matchSemVer = (0, parser_1.matchWithRegexFactory)(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(\d+))?)?$/, 'major', 'minor', 'patch', 'preReleaseName', 'preReleaseVersion');
