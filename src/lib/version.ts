@@ -83,7 +83,7 @@ export class SemVer {
   }
 
   private static matchSemVer = matchWithRegexFactory(
-    /^(\d+)\.(\d+)\.(\d+)(?:-([alpha|beta|rc]+)(?:\.(\d+))?)?$/,
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(\d+))?)?$/,
     'major',
     'minor',
     'patch',
