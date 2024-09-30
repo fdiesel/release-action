@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Actions, RefActions, ReleaseActions } from './actions';
 import { Commit } from './lib/commit';
-import { FullyQualifiedRef, RefTypes, ShortenedRef } from './lib/ref';
+import { FullyQualifiedRef, Ref, RefTypes } from './lib/ref';
 import { ReleaseBody } from './lib/release';
 import { Tag } from './lib/tag';
 
@@ -87,7 +87,7 @@ export class GitHub
     if (sinceTag) {
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
-        base: sinceTag.fqRef,
+        base: sinceTag.ref.fullyQualified,
         head: this.branchRef
       });
       return data.commits.map((commit) => new GitHubCommit(commit));
@@ -125,20 +125,28 @@ class GitHubRefs<Type extends RefTypes>
     super(octokit);
   }
 
-  async create(ref: ShortenedRef<Type>, sha: string): Promise<void> {
-    await this.octokit.rest.git.createRef({ ...this.repo, ref, sha });
+  async create(ref: Ref<Type>, sha: string): Promise<void> {
+    await this.octokit.rest.git.createRef({
+      ...this.repo,
+      ref: ref.fullyQualified,
+      sha
+    });
     core.info(`Ref created: ${ref}`);
   }
 
-  async update(ref: ShortenedRef<Type>, sha: string): Promise<void> {
-    await this.octokit.rest.git.updateRef({ ...this.repo, ref, sha });
+  async update(ref: Ref<Type>, sha: string): Promise<void> {
+    await this.octokit.rest.git.updateRef({
+      ...this.repo,
+      ref: ref.shortened,
+      sha
+    });
     core.info(`Ref updated: ${ref}`);
   }
 
-  async save(ref: ShortenedRef<Type>, sha: string): Promise<void> {
+  async save(ref: Ref<Type>, sha: string): Promise<void> {
     let refAlreadyExists = false;
     try {
-      await this.octokit.rest.git.getRef({ ...this.repo, ref });
+      await this.octokit.rest.git.getRef({ ...this.repo, ref: ref.shortened });
       refAlreadyExists = true;
     } catch (error: any) {
       if (error.status !== 404) {
@@ -153,8 +161,8 @@ class GitHubRefs<Type extends RefTypes>
     }
   }
 
-  async delete(ref: ShortenedRef<Type>): Promise<void> {
-    await this.octokit.rest.git.deleteRef({ ...this.repo, ref });
+  async delete(ref: Ref<Type>): Promise<void> {
+    await this.octokit.rest.git.deleteRef({ ...this.repo, ref: ref.shortened });
     core.info(`Ref deleted: ${ref}`);
   }
 }

@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { Actions } from './actions';
 import { GitHub } from './github';
 import { inputs } from './inputs';
+import { Ref } from './lib/ref';
 import { Tag } from './lib/tag';
 import { determineNextVersion, displayVersion } from './lib/utils';
 
@@ -28,13 +29,13 @@ async function run() {
     if (prevTag?.version && prevTag?.version.major < nextTag.version.major) {
       const prevTagCommitSha = await actions.getTagCommitSha(prevTag);
       await actions.branches.create(
-        `heads/${prevTag.version.major}.x`,
+        new Ref('heads', `${nextTag.version.major}.x`),
         prevTagCommitSha
       );
     }
 
     // create tag and draft release
-    await actions.tags.create(nextTag.shortRef, commits[0].sha);
+    await actions.tags.create(nextTag.ref, commits[0].sha);
     const releaseId = await actions.releases.draft(prevTag, nextTag, commits);
 
     core.saveState('releaseId', releaseId);

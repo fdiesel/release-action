@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { Actions } from './actions';
 import { GitHub } from './github';
 import { inputs } from './inputs';
+import { Ref } from './lib/ref';
 import { Tag } from './lib/tag';
 import { displayVersion } from './lib/utils';
 
@@ -23,19 +24,21 @@ async function run() {
     // get latest commit sha of branch
     const latestCommitSha = await actions.getLatestCommitSha();
     // update tag and publish release with latest commit sha of branch
-    await actions.tags.update(nextTag.shortRef, latestCommitSha);
+    await actions.tags.update(nextTag.ref, latestCommitSha);
     await actions.releases.publish(releaseId, latestCommitSha);
     // create or update major tag if not pre-release
     if (!nextTag.version.preRelease) {
-      await actions.tags.save(nextTag.shortMajorRef, latestCommitSha);
+      await actions.tags.save(nextTag.ref, latestCommitSha);
     }
   } else {
     // rollback release and tag
     await actions.releases.delete(releaseId);
-    await actions.tags.delete(nextTag.shortRef);
+    await actions.tags.delete(nextTag.ref);
     // rollback release branch if major version was bumped
     if (prevTag && prevTag.version.major < nextTag.version.major) {
-      await actions.branches.delete(`heads/${prevTag.version.major}.x`);
+      await actions.branches.delete(
+        new Ref('heads', `${nextTag.version.major}.x`)
+      );
     }
   }
 }
