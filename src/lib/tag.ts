@@ -5,10 +5,12 @@ export class Tag {
   public static readonly PREFIX: string = 'v';
   public readonly version: SemVer;
   public readonly ref: Ref<'tags'>;
+  public readonly majorRef: Ref<'tags'>;
 
   constructor(version: SemVer) {
     this.version = version;
     this.ref = new Ref('tags', this.toString());
+    this.majorRef = new Ref('tags', this.toMajorString());
   }
 
   public static parseTag(tag: string): Tag {

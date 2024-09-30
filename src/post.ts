@@ -28,7 +28,7 @@ async function run() {
     await actions.releases.publish(releaseId, latestCommitSha);
     // create or update major tag if not pre-release
     if (!nextTag.version.preRelease) {
-      await actions.tags.save(nextTag.ref, latestCommitSha);
+      await actions.tags.save(nextTag.majorRef, latestCommitSha);
     }
   } else {
     // rollback release and tag
