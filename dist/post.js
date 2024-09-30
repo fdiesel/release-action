@@ -58,7 +58,7 @@ function run() {
             yield actions.releases.publish(releaseId, latestCommitSha);
             // create or update major tag if not pre-release
             if (!nextTag.version.preRelease) {
-                yield actions.tags.save(nextTag.ref, latestCommitSha);
+                yield actions.tags.save(nextTag.majorRef, latestCommitSha);
             }
         }
         else {

@@ -7,6 +7,7 @@ class Tag {
     constructor(version) {
         this.version = version;
         this.ref = new ref_1.Ref('tags', this.toString());
+        this.majorRef = new ref_1.Ref('tags', this.toMajorString());
     }
     static parseTag(tag) {
         const version = version_1.SemVer.parse(tag.substring(Tag.PREFIX.length));
