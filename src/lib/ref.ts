@@ -8,10 +8,15 @@ export class Ref<Type extends RefTypes> {
   public readonly name: string;
   public readonly shortened: ShortenedRef<Type>;
   public readonly fullyQualified: FullyQualifiedRef<Type>;
+
   constructor(type: Type, name: string) {
     this.type = type;
     this.name = name;
     this.shortened = `${type}/${name}`;
     this.fullyQualified = `refs/${this.shortened}`;
+  }
+
+  public toString(): string {
+    return this.fullyQualified;
   }
 }
