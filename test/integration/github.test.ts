@@ -19,4 +19,12 @@ describe('github', () => {
     }).not.toThrow();
     await provider.tags.delete(ref);
   });
+  test('should create a branch', async () => {
+    const sha = await provider.getLatestCommitSha();
+    const branch = new Ref(RefTypes.HEADS, 'test');
+    expect(async () => {
+      provider.branches.create(branch, sha);
+    }).not.toThrow();
+    await provider.branches.delete(branch);
+  });
 });
