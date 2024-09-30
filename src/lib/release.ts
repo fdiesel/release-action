@@ -5,34 +5,18 @@ import {
 } from './commit';
 import { Tag } from './tag';
 
-export class ReleaseBody {
+export abstract class ReleaseBody {
   private readonly content: string;
 
   constructor(
     baseUri: string,
     prevTag: Tag | undefined,
     nextTag: Tag,
-    commits: Commit<any>[]
+    sections: (string | null)[]
   ) {
     this.content = [
       ReleaseBody.createHeader(baseUri, prevTag, nextTag),
-      ...[
-        ReleaseBody.createTypeSection(
-          '⚠ BREAKING CHANGES',
-          commits,
-          (commit) => commit.isBreakingChange
-        ),
-        ReleaseBody.createTypeSection(
-          'Features',
-          commits,
-          (commit) => commit.type === ConventionalCommitType.FEAT
-        ),
-        ReleaseBody.createTypeSection(
-          'Bug Fixes',
-          commits,
-          (commit) => commit.type === ConventionalCommitType.FIX
-        )
-      ].filter((section) => section !== null)
+      ...sections.filter((section) => section !== null)
     ].join('\n');
   }
 
@@ -49,9 +33,9 @@ export class ReleaseBody {
     } (${new Date().toISOString().split('T')[0]})`;
   }
 
-  private static createTypeSection(
+  protected static createTypeSection(
     title: string,
-    commits: Commit<any>[],
+    commits: Commit<unknown>[],
     filter: (commit: ConventionalCommitMessage) => boolean
   ): string | null {
     const filteredCommits = commits.filter(
@@ -70,5 +54,51 @@ export class ReleaseBody {
 
   public toString(): string {
     return this.content;
+  }
+}
+
+export class ReleaseDevBody extends ReleaseBody {
+  constructor(
+    baseUri: string,
+    prevTag: Tag | undefined,
+    nextTag: Tag,
+    commits: Commit<unknown>[]
+  ) {
+    const sections = [
+      ReleaseBody.createTypeSection(
+        '⚠ BREAKING CHANGES',
+        commits,
+        (commit) => commit.isBreakingChange
+      ),
+      ReleaseBody.createTypeSection(
+        'Features',
+        commits,
+        (commit) => commit.type === ConventionalCommitType.FEAT
+      ),
+      ReleaseBody.createTypeSection(
+        'Bug Fixes',
+        commits,
+        (commit) => commit.type === ConventionalCommitType.FIX
+      )
+    ];
+    super(baseUri, prevTag, nextTag, sections);
+  }
+}
+
+export class ReleaseProdBody extends ReleaseBody {
+  constructor(
+    baseUri: string,
+    prevTag: Tag | undefined,
+    nextTag: Tag,
+    commits: Commit<unknown>[]
+  ) {
+    const sections = [
+      ReleaseBody.createTypeSection(
+        'Features',
+        commits,
+        (commit) => commit.type === ConventionalCommitType.FEAT
+      )
+    ];
+    super(baseUri, prevTag, nextTag, sections);
   }
 }

@@ -1,6 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Ref = void 0;
+exports.Ref = exports.RefTypes = void 0;
+var RefTypes;
+(function (RefTypes) {
+    RefTypes["HEADS"] = "heads";
+    RefTypes["TAGS"] = "tags";
+    RefTypes["PULL"] = "pull";
+    RefTypes["NOTES"] = "notes";
+    RefTypes["REMOTES"] = "remotes";
+})(RefTypes || (exports.RefTypes = RefTypes = {}));
 class Ref {
     constructor(type, name) {
         this.type = type;

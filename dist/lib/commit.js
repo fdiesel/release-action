@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Commit = exports.ConventionalCommitMessage = exports.parseConventionalCommitType = exports.ConventionalCommitType = void 0;
-const framework_source_1 = require("./framework-source");
 const parser_1 = require("./parser");
+const providers_1 = require("./providers");
 const version_1 = require("./version");
 var ConventionalCommitType;
 (function (ConventionalCommitType) {
@@ -45,7 +45,7 @@ ConventionalCommitMessage.decomposeMessage = (0, parser_1.matchWithRegexFactory)
         .map((type) => type.replace(' ', '-'))
 ].join('|')})(?:\((.+)\))?(?:(\!))?\: (.+)`, 'i'), 'type', 'scope', 'exclamation', 'header');
 ConventionalCommitMessage.includesBreakingChange = (0, parser_1.testWithRegexFactory)(/BREAKING( |-)CHANGES?:/i);
-class Commit extends framework_source_1.FrameworkSource {
+class Commit extends providers_1.ProviderSource {
     constructor(source, plainMessage, sha, uri, id) {
         super(source);
         this.sha = sha;

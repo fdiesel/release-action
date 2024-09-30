@@ -1,10 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Actions, RefActions, ReleaseActions } from './actions';
-import { Commit } from './lib/commit';
-import { FullyQualifiedRef, Ref, RefTypes } from './lib/ref';
-import { ReleaseBody } from './lib/release';
-import { Tag } from './lib/tag';
+import { Commit } from '../lib/commit';
+import {
+  Provider,
+  ProviderRefActions,
+  ProviderReleaseActions
+} from '../lib/providers';
+import { FullyQualifiedRef, Ref, RefTypes } from '../lib/ref';
+import { Tag } from '../lib/tag';
 
 type Octokit = ReturnType<typeof github.getOctokit>;
 type GitHubSourceCommit = Awaited<
@@ -26,46 +29,28 @@ class GitHubCommit extends Commit<GitHubSourceCommit> {
 abstract class GitHubAction {
   protected readonly repo: typeof github.context.repo;
   protected readonly octokit: Octokit;
-  protected readonly baseUri: string;
   protected readonly branchName: string;
-  protected readonly branchRef: FullyQualifiedRef<'heads'>;
+  protected readonly branchRef: FullyQualifiedRef<RefTypes.HEADS>;
 
   constructor(octokit: Octokit) {
     this.repo = github.context.repo;
     this.octokit = octokit;
-    this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
 
     // get branch name of the workflow
-    const branchRefPrefix: FullyQualifiedRef<'heads'> = 'refs/heads/';
+    const branchRefPrefix: FullyQualifiedRef<RefTypes.HEADS> = 'refs/heads/';
     this.branchName = github.context.ref.split(branchRefPrefix).pop()!;
     this.branchRef = `${branchRefPrefix}${this.branchName}`;
-
-    // // Check if the event is a pull request
-    // if (github.context.payload.pull_request) {
-    //   // For pull request events, use the source branch (head branch)
-    //   this.branch = github.context.payload.pull_request.head.ref;
-    // } else {
-    //   // For other events (like push), use the ref and remove 'refs/heads/' prefix
-    //   const ref = github.context.ref;
-
-    //   if (ref.startsWith('refs/heads/')) {
-    //     this.branch = ref.replace('refs/heads/', ''); // Return the branch name for push events
-    //   } else if (ref.startsWith('refs/tags/')) {
-    //     this.branch = ref.replace('refs/tags/', ''); // Handle tags if needed
-    //   }
-
-    //   throw new Error('Could not determine the branch name from the context.');
-    // }
   }
 }
 
-export class GitHub
+export class GitHubProvider
   extends GitHubAction
-  implements Actions<GitHubSourceCommit>
+  implements Provider<GitHubSourceCommit>
 {
-  tags: RefActions<'tags'>;
-  branches: RefActions<'heads'>;
-  releases: ReleaseActions<GitHubSourceCommit>;
+  tags: ProviderRefActions<RefTypes.TAGS>;
+  branches: ProviderRefActions<RefTypes.HEADS>;
+  releases: ProviderReleaseActions;
+  baseUri: string;
 
   constructor(token: string) {
     const octokit = github.getOctokit(token);
@@ -73,6 +58,7 @@ export class GitHub
     this.tags = new GitHubRefs(this.octokit);
     this.branches = new GitHubRefs(this.octokit);
     this.releases = new GitHubReleases(this.octokit);
+    this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
   }
 
   async getPrevTag(): Promise<Tag | undefined> {
@@ -119,10 +105,26 @@ export class GitHub
 
 class GitHubRefs<Type extends RefTypes>
   extends GitHubAction
-  implements RefActions<Type>
+  implements ProviderRefActions<Type>
 {
   constructor(octokit: Octokit) {
     super(octokit);
+  }
+
+  async exists(ref: Ref<Type>): Promise<boolean> {
+    try {
+      await this.octokit.rest.git.getRef({
+        ...this.repo,
+        ref: ref.shortened
+      });
+      return true;
+    } catch (error: any) {
+      if (error.status !== 404) {
+        core.setFailed(error.message);
+        throw error;
+      }
+      return false;
+    }
   }
 
   async create(ref: Ref<Type>, sha: string): Promise<void> {
@@ -143,48 +145,23 @@ class GitHubRefs<Type extends RefTypes>
     core.info(`Ref updated: ${ref}`);
   }
 
-  async save(ref: Ref<Type>, sha: string): Promise<void> {
-    let refAlreadyExists = false;
-    try {
-      await this.octokit.rest.git.getRef({ ...this.repo, ref: ref.shortened });
-      refAlreadyExists = true;
-    } catch (error: any) {
-      if (error.status !== 404) {
-        core.setFailed(error.message);
-        throw error;
-      }
-    }
-    if (refAlreadyExists) {
-      await this.update(ref, sha);
-    } else {
-      await this.create(ref, sha);
-    }
-  }
-
   async delete(ref: Ref<Type>): Promise<void> {
     await this.octokit.rest.git.deleteRef({ ...this.repo, ref: ref.shortened });
     core.info(`Ref deleted: ${ref}`);
   }
 }
 
-class GitHubReleases
-  extends GitHubAction
-  implements ReleaseActions<GitHubSourceCommit>
-{
+class GitHubReleases extends GitHubAction implements ProviderReleaseActions {
   constructor(octokit: Octokit) {
     super(octokit);
   }
 
-  async draft(
-    prevTag: Tag | undefined,
-    nextTag: Tag,
-    commits: Commit<GitHubSourceCommit>[]
-  ): Promise<string> {
+  async draft(nextTag: Tag, body: string): Promise<string> {
     const { data } = await this.octokit.rest.repos.createRelease({
       ...this.repo,
       tag_name: nextTag.toString(),
       name: nextTag.toString(),
-      body: new ReleaseBody(this.baseUri, prevTag, nextTag, commits).toString(),
+      body,
       prerelease: !!nextTag.version.preRelease,
       draft: true
     });

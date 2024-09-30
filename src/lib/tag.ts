@@ -1,16 +1,16 @@
-import { Ref } from './ref';
+import { Ref, RefTypes } from './ref';
 import { SemVer } from './version';
 
 export class Tag {
   public static readonly PREFIX: string = 'v';
   public readonly version: SemVer;
-  public readonly ref: Ref<'tags'>;
-  public readonly majorRef: Ref<'tags'>;
+  public readonly ref: Ref<RefTypes.TAGS>;
+  public readonly majorRef: Ref<RefTypes.TAGS>;
 
   constructor(version: SemVer) {
     this.version = version;
-    this.ref = new Ref('tags', this.toString());
-    this.majorRef = new Ref('tags', this.toMajorString());
+    this.ref = new Ref(RefTypes.TAGS, this.toString());
+    this.majorRef = new Ref(RefTypes.TAGS, this.toMajorString());
   }
 
   public static parseTag(tag: string): Tag {

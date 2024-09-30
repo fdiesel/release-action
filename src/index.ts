@@ -1,42 +1,56 @@
 import * as core from '@actions/core';
-import { Actions } from './actions';
-import { GitHub } from './github';
 import { inputs } from './inputs';
-import { Ref } from './lib/ref';
+import { Provider } from './lib/providers';
+import { Ref, RefTypes } from './lib/ref';
+import { ReleaseDevBody, ReleaseProdBody } from './lib/release';
 import { Tag } from './lib/tag';
 import { determineNextVersion, displayVersion } from './lib/utils';
+import { GitHubProvider } from './providers/github';
 
 async function run() {
   displayVersion();
-  const actions: Actions<any> = new GitHub(inputs.token);
+  const provider: Provider<unknown> = new GitHubProvider(inputs.token);
 
   // get latest tag from branch
-  const prevTag = await actions.getPrevTag();
+  const prevTag = await provider.getPrevTag();
 
   // get commits from branch
-  const commits = await actions.getCommits(prevTag);
+  const newCommits = await provider.getCommits(prevTag);
 
   // determine next version
   const nextVersion = determineNextVersion(
     prevTag?.version,
-    commits,
+    newCommits,
     inputs.phase
   );
   const nextTag = nextVersion && new Tag(nextVersion);
 
   if (nextTag) {
+    const majorIsBumped =
+      prevTag?.version && prevTag?.version.major < nextTag.version.major;
     // create release branch if major version is bumped
-    if (prevTag?.version && prevTag?.version.major < nextTag.version.major) {
-      const prevTagCommitSha = await actions.getTagCommitSha(prevTag);
-      await actions.branches.create(
-        new Ref('heads', `${prevTag.version.major}.x`),
+    if (majorIsBumped) {
+      const prevTagCommitSha = await provider.getTagCommitSha(prevTag);
+      await provider.branches.create(
+        new Ref(RefTypes.HEADS, `${prevTag.version.major}.x`),
         prevTagCommitSha
       );
     }
 
     // create tag and draft release
-    await actions.tags.create(nextTag.ref, commits[0].sha);
-    const releaseId = await actions.releases.draft(prevTag, nextTag, commits);
+    await provider.tags.create(nextTag.ref, newCommits[0].sha);
+    const releaseBody = majorIsBumped
+      ? new ReleaseProdBody(
+          provider.baseUri,
+          prevTag,
+          nextTag,
+          await provider.getCommits()
+        )
+      : new ReleaseDevBody(provider.baseUri, prevTag, nextTag, newCommits);
+    const releaseId = await provider.releases.draft(
+      nextTag,
+      releaseBody.toString()
+    );
 
     core.saveState('releaseId', releaseId);
     core.saveState('prevVersion', prevTag?.version.toString());

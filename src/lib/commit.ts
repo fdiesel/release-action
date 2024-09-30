@@ -1,9 +1,9 @@
-import { FrameworkSource } from './framework-source';
 import {
   enumParserFactory,
   matchWithRegexFactory,
   testWithRegexFactory
 } from './parser';
+import { ProviderSource } from './providers';
 import { parseSemVerPreReleaseName, SemVerPreReleaseName } from './version';
 
 export enum ConventionalCommitType {
@@ -88,7 +88,7 @@ export class ConventionalCommitMessage {
 
 export abstract class Commit<
   SourceCommitType
-> extends FrameworkSource<SourceCommitType> {
+> extends ProviderSource<SourceCommitType> {
   public readonly message?: ConventionalCommitMessage;
   public readonly preReleaseName?: SemVerPreReleaseName;
   public readonly sha: string;
@@ -112,7 +112,7 @@ export abstract class Commit<
       : undefined;
     try {
       this.message = ConventionalCommitMessage.parse(plainMessage);
-    } catch (_: any) {
+    } catch (_: unknown) {
       this.message = undefined;
     }
   }

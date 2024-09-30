@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReleaseBody = void 0;
+exports.ReleaseProdBody = exports.ReleaseDevBody = exports.ReleaseBody = void 0;
 const commit_1 = require("./commit");
 class ReleaseBody {
     constructor(baseUri, prevTag, nextTag, commits) {
@@ -35,3 +35,9 @@ class ReleaseBody {
     }
 }
 exports.ReleaseBody = ReleaseBody;
+class ReleaseDevBody extends ReleaseBody {
+}
+exports.ReleaseDevBody = ReleaseDevBody;
+class ReleaseProdBody extends ReleaseBody {
+}
+exports.ReleaseProdBody = ReleaseProdBody;

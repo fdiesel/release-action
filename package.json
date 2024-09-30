@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "test:units": "jest --rootDir test/units",
     "test": "jest",
     "gh:login": "gh auth login -p ssh -h github.com --skip-ssh-key --web"
   },

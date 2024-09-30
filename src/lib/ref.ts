@@ -1,4 +1,11 @@
-export type RefTypes = 'heads' | 'tags' | 'pull' | 'notes' | 'remotes';
+export enum RefTypes {
+  HEADS = 'heads',
+  TAGS = 'tags',
+  PULL = 'pull',
+  NOTES = 'notes',
+  REMOTES = 'remotes'
+}
+
 export type ShortenedRef<Type extends RefTypes> = `${Type}/${string}`;
 export type FullyQualifiedRef<Type extends RefTypes> =
   `refs/${ShortenedRef<Type>}`;
