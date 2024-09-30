@@ -29,8 +29,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # required
           prefix: v # optional tag prefix (default: v)
+          phase: # optional phase (dev / prod) (default: dev)
           strategy: node # optional (default: '')
-          first: 0.1.0 # optional first version (default: 0.1.0)
 ```
 
 ### Strategies

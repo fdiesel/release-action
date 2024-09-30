@@ -1,5 +1,9 @@
-import { getInput } from '@actions/core';
 import { enumParserFactory, matchWithRegexFactory } from './parser';
+
+export enum Phase {
+  Dev = 'dev',
+  Prod = 'prod'
+}
 
 export enum SemVerPreReleaseName {
   Alpha = 'alpha',
@@ -29,26 +33,26 @@ export const parseBumpTarget = enumParserFactory(
 );
 
 export class SemVerPreRelease {
-  private readonly _name: SemVerPreReleaseName;
-  private readonly _version: number;
+  public readonly name: SemVerPreReleaseName;
+  public readonly version: number;
 
   constructor(name: SemVerPreReleaseName, version: number = 0) {
-    this._name = name;
-    this._version = version;
+    this.name = name;
+    this.version = version;
   }
 
   public toString(): string {
-    return `${this._name}${this._version > 0 ? `.${this._version}` : ''}`;
+    return `${this.name}${this.version > 0 ? `.${this.version}` : ''}`;
   }
 
   public static bump(
     preRelease: SemVerPreRelease,
     name: SemVerPreReleaseName
   ): SemVerPreRelease {
-    if (preRelease._name !== name) {
+    if (preRelease.name !== name) {
       return new SemVerPreRelease(name);
     } else {
-      return new SemVerPreRelease(name, preRelease._version + 1);
+      return new SemVerPreRelease(name, preRelease.version + 1);
     }
   }
 }
@@ -78,8 +82,13 @@ export class SemVer {
     );
   }
 
-  public static first(): SemVer {
-    return SemVer.fromString(getInput('first'));
+  public static init(phase: Phase): SemVer {
+    switch (phase) {
+      case Phase.Prod:
+        return new SemVer(1, 0, 0);
+      case Phase.Dev:
+        return new SemVer(0, 1, 0);
+    }
   }
 
   private static matchSemVer = matchWithRegexFactory(
@@ -91,7 +100,7 @@ export class SemVer {
     'preReleaseVersion'
   );
 
-  public static fromString(version: string): SemVer {
+  public static parse(version: string): SemVer {
     const { major, minor, patch, preReleaseName, preReleaseVersion } =
       this.matchSemVer(version);
     if (!major || !minor || !patch) {
@@ -142,8 +151,6 @@ export class SemVer {
             version.patch,
             SemVerPreRelease.bump(version.preRelease, preReleaseName)
           );
-      default:
-        throw new Error(`Invalid target: ${target}`);
     }
   }
 }

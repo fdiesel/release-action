@@ -12,19 +12,12 @@ inputs:
   token:
     description: The github token. Use secrets.GITHUB_TOKEN
     required: true
-  prefix:
-    description: Tag prefix
-    default: v
+  phase:
+    description: The phase of the release (dev / prod)
+    default: dev
     required: false
   strategy:
-    description: The update strategy for the project type
-    required: false
-  first:
-    description: The first version
-    default: 0.1.0
-    required: false
-  pre-release:
-    description: Make all releases pre-releases. E.g. during initial development.
+    description: The update strategy for the project type (node)
     required: false
   _job_status:
     description: DO NOT TOUCH

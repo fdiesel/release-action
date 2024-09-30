@@ -1,3 +1,4 @@
+import { FrameworkSource } from './framework-source';
 import {
   enumParserFactory,
   matchWithRegexFactory,
@@ -64,7 +65,7 @@ export class ConventionalCommitMessage {
     /BREAKING( |-)CHANGES?:/i
   );
 
-  public static fromString(message: string): ConventionalCommitMessage {
+  public static parse(message: string): ConventionalCommitMessage {
     const { type, scope, exclamation, header } = this.decomposeMessage(message);
     const isBreakingChange =
       exclamation === '!' || this.includesBreakingChange(message);
@@ -85,26 +86,34 @@ export class ConventionalCommitMessage {
   }
 }
 
-export class Commit {
-  public readonly conventionalCommitMessage?: ConventionalCommitMessage;
-  public readonly plainMessage: string;
-  public readonly ref: string;
-  public readonly url: string;
+export abstract class Commit<
+  SourceCommitType
+> extends FrameworkSource<SourceCommitType> {
+  public readonly message?: ConventionalCommitMessage;
   public readonly preReleaseName?: SemVerPreReleaseName;
+  public readonly sha: string;
+  public readonly uri: string;
+  public readonly id: string;
 
-  constructor(ref: string, url: string, message: string) {
-    this.ref = ref.substring(0, 7);
-    this.url = url;
-    this.plainMessage = message;
-    const { preReleaseName } = Commit.findPreReleaseName(message);
+  constructor(
+    source: SourceCommitType,
+    plainMessage: string,
+    sha: string,
+    uri: string,
+    id: string
+  ) {
+    super(source);
+    this.sha = sha;
+    this.uri = uri;
+    this.id = id;
+    const { preReleaseName } = Commit.findPreReleaseName(plainMessage);
     this.preReleaseName = preReleaseName
       ? parseSemVerPreReleaseName(preReleaseName)
       : undefined;
     try {
-      this.conventionalCommitMessage =
-        ConventionalCommitMessage.fromString(message);
+      this.message = ConventionalCommitMessage.parse(plainMessage);
     } catch (_: any) {
-      this.conventionalCommitMessage = undefined;
+      this.message = undefined;
     }
   }
 

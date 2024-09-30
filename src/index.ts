@@ -1,94 +1,56 @@
 import * as core from '@actions/core';
-import { ConventionalCommitType } from './lib/commit';
-import {
-  createTag,
-  draftRelease,
-  getLatestChronologicalRelease,
-  getLatestCommits,
-  getLatestCommitSha
-} from './lib/github';
+import { Actions } from './actions';
+import { GitHub } from './github';
+import { inputs } from './inputs';
 import { runStrategies } from './lib/strategy';
 import { Tag } from './lib/tag';
-import { displayVersion } from './lib/utils';
-import {
-  BumpTarget,
-  parseBumpTarget,
-  parseSemVerPreReleaseName,
-  SemVer
-} from './lib/version';
+import { determineNextVersion, displayVersion } from './lib/utils';
 
 async function run() {
   displayVersion();
-  const prevRelease = await getLatestChronologicalRelease();
-  const prevTag = prevRelease ? new Tag(prevRelease.tag_name) : undefined;
-  const commits = await getLatestCommits(prevRelease?.published_at);
+  const actions: Actions<any> = new GitHub(inputs.token);
 
-  let nextVersion: SemVer;
-  const preReleaseNamePreset = core.getInput('pre-release')
-    ? parseSemVerPreReleaseName(core.getInput('pre-release'))
-    : undefined;
+  // get latest tag from branch
+  const prevTag = await actions.getPrevTag();
 
-  if (prevTag) {
-    nextVersion = prevTag.version;
+  // get latest release from branch
+  const prevRelease = prevTag && (await actions.releases.getByTag(prevTag));
 
-    const latestPreReleaseName = commits.find(
-      (commit) => !!commit.preReleaseName
-    )?.preReleaseName;
-    const preReleaseBumpTarget = latestPreReleaseName
-      ? parseBumpTarget(latestPreReleaseName)
-      : undefined;
+  // get commits from branch
+  const commits = await actions.getCommitsAfterTag(prevRelease?.published_at);
 
-    let mainBumpTarget: BumpTarget | undefined;
+  // determine next version
+  const nextVersion = determineNextVersion(
+    prevTag?.version,
+    commits,
+    inputs.phase
+  );
+  const nextTag = nextVersion && new Tag(nextVersion);
 
-    for (const commit of commits) {
-      if (!commit.conventionalCommitMessage) continue;
-      const { type, isBreakingChange } = commit.conventionalCommitMessage;
-      if (isBreakingChange) {
-        mainBumpTarget = BumpTarget.Major;
-        break;
-      }
-      if (
-        type === ConventionalCommitType.FEAT &&
-        (!mainBumpTarget || mainBumpTarget === BumpTarget.Patch)
-      ) {
-        mainBumpTarget = BumpTarget.Minor;
-      } else if (type === ConventionalCommitType.FIX && !mainBumpTarget) {
-        mainBumpTarget = BumpTarget.Patch;
-      }
+  if (nextTag) {
+    runStrategies(nextTag);
+
+    // create release branch if major version is bumped
+    if (prevTag?.version && prevTag?.version.major < nextTag.version.major) {
+      const prevTagCommitSha = await actions.getTagCommitSha(prevTag);
+      await actions.branches.create(
+        `refs/heads/${prevTag.version.major}.x`,
+        prevTagCommitSha
+      );
     }
 
-    if (
-      mainBumpTarget === BumpTarget.Major ||
-      mainBumpTarget === BumpTarget.Minor ||
-      (mainBumpTarget === BumpTarget.Patch && !preReleaseBumpTarget)
-    ) {
-      nextVersion = SemVer.bump(nextVersion, mainBumpTarget);
-    }
+    // create tag and draft release
+    await actions.tags.create(nextTag.ref, commits[0].sha);
+    const releaseId = await actions.releases.draft(prevTag, nextTag, commits);
 
-    if (preReleaseBumpTarget) {
-      nextVersion = SemVer.bump(nextVersion, preReleaseBumpTarget);
-    } else if (preReleaseNamePreset) {
-      nextVersion = SemVer.bump(nextVersion, preReleaseNamePreset);
-    }
-  } else {
-    nextVersion = SemVer.first();
-    if (preReleaseNamePreset) {
-      nextVersion = SemVer.bump(nextVersion, preReleaseNamePreset);
-    }
-  }
+    core.saveState('releaseId', releaseId);
+    core.saveState('prevVersion', prevTag?.version.toString());
+    core.saveState('nextVersion', nextTag.version.toString());
 
-  const nextTag = new Tag(nextVersion.toString());
-
-  runStrategies(nextTag);
-
-  core.setOutput('tag', nextTag.toString());
-  core.setOutput('majorTag', nextTag.toMajorString());
-  core.setOutput('version', nextTag.version.toString());
-  core.setOutput('major', nextTag.version.major.toString());
-
-  if (prevTag?.toString() !== nextTag.toString()) {
-    await createTag(nextTag, await getLatestCommitSha());
-    await draftRelease(prevTag, nextTag, commits);
+    core.setOutput('tag', nextTag.toString());
+    core.setOutput('majorTag', nextTag.toMajorString());
+    core.setOutput('version', nextTag.version.toString());
+    core.setOutput('majorVersion', nextTag.version.major.toString());
     core.setOutput('created', true);
     core.setOutput('pre-release', nextTag.version.preRelease?.toString());
   } else {
