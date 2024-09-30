@@ -46,7 +46,7 @@ function run() {
         (0, utils_1.displayVersion)();
         if (!releaseId || !nextVersion)
             return;
-        const nextTag = tag_1.Tag.parseTag(nextVersion);
+        const nextTag = tag_1.Tag.parseVersion(nextVersion);
         const prevTag = prevVersion ? tag_1.Tag.parseVersion(prevVersion) : undefined;
         const actions = new github_1.GitHub(inputs_1.inputs.token);
         if (status === 'success') {
