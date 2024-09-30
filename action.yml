@@ -15,10 +15,7 @@ inputs:
   phase:
     description: The phase of the release (dev / prod)
     default: dev
-    required: false
-  strategy:
-    description: The update strategy for the project type (node)
-    required: false
+    required: true
   _job_status:
     description: DO NOT TOUCH
     default: ${{ job.status }}
@@ -29,7 +26,9 @@ outputs:
     description: Pre-release type if the release is a pre-release
   tag:
     description: Tag name
+  majorTag:
+    description: Major tag name
   version:
     description: Semantic version
-  major:
+  majorVersion:
     description: Major version

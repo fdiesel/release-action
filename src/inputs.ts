@@ -1,5 +1,4 @@
 import { getInput, setFailed } from '@actions/core';
-import { Strategy } from './lib/strategy';
 import { Phase } from './lib/version';
 
 function getValidatedInput<T>({
@@ -36,18 +35,5 @@ export const inputs = {
       Object.values(Phase).includes(input.toLocaleLowerCase() as Phase),
     parseFn: (input) =>
       Object.values(Phase).find((phase) => phase === input.toLocaleLowerCase())!
-  }),
-  strategy: getValidatedInput<Strategy | undefined>({
-    name: 'strategy',
-    required: false,
-    validateFn: (input) => {
-      if (input === '') return true;
-      return Object.values(Strategy).includes(input.toLowerCase() as Strategy);
-    },
-    parseFn: (input) => {
-      return Object.values(Strategy).find(
-        (strategy) => strategy === input.toLowerCase()
-      );
-    }
   })
 };

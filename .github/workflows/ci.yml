@@ -30,6 +30,8 @@ jobs:
           INPUT_PHASE: prod
 
   deploy:
+    needs: test
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -38,6 +40,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Release
+        id: release
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          phase: prod
 
       - name: Configure Git
         run: |
@@ -56,28 +65,20 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
-
-      - name: Commit Push Build
         run: |
+          npm run build
           git add -f node_modules dist
           if [[ -n $(git status --porcelain) ]]; then
             git commit -m "chore: update dist"
             git push origin HEAD
           fi
 
-      - name: Release
-        id: release
-        uses: ./
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          phase: prod
-
-      - name: Update Readme
+      - name: Update Version in Files
         run: |
-          sed -i "s/release-action@v[0-9]\+/release-action@v${{ steps.release.outputs.major }}/g" README.md
+          npm version ${{ steps.release.outputs.version }} --allow-same-version --no-git-tag-version
+          sed -i "s/release-action@v[0-9]\+/release-action@v${{ steps.release.outputs.majorTag }}/g" README.md
           git add README.md
           if [[ -n $(git status --porcelain) ]]; then
-            git commit -m "chore: update readme workflow version"
+            git commit -m "chore: update version files"
             git push origin HEAD
           fi

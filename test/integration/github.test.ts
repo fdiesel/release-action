@@ -4,13 +4,18 @@ import { Provider } from '../../src/lib/providers';
 import { Ref, RefTypes } from '../../src/lib/ref';
 import { GitHubProvider } from '../../src/providers/github';
 
-describe('github', () => {
+describe('github', async () => {
   const provider: Provider<unknown> = new GitHubProvider(inputs.token);
-  test('should not fail creating a tag', () => {
+  const ref = new Ref(RefTypes.TAGS, 'test');
+  const sha = await provider.getLatestCommitSha();
+  test('should check a tag', async () => {
+    await provider.tags.create(ref, sha);
+    expect(await provider.tags.exists(ref)).toBe(true);
+  });
+  test('should creating a tag', async () => {
     expect(async () => {
-      const ref = new Ref(RefTypes.TAGS, 'test');
-      const sha = await provider.getLatestCommitSha();
       provider.tags.create(ref, sha);
     }).not.toThrow();
+    await provider.tags.delete(ref);
   });
 });

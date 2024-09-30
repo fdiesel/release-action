@@ -28,26 +28,16 @@ jobs:
         uses: fdiesel/release-action@v
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # required
-          prefix: v # optional tag prefix (default: v)
-          phase: # optional phase (dev / prod) (default: dev)
-          strategy: node # optional (default: '')
+          phase: # phase (dev / prod) (default: dev)
 ```
-
-### Strategies
-
-If no strategy is set, the workflow will only use git and not update any files.
-
-| value | task                                                                                           |
-| :---- | :--------------------------------------------------------------------------------------------- |
-| node  | utilizes `npm version ...` to bump the version in the package.json and package-lock.json files |
 
 ### Outputs
 
-| key         | value                                          |
-| :---------- | :--------------------------------------------- |
-| created     | 'true' if a release was created                |
-| pre-release | 'true' if the created release is a pre-release |
-| tag         | tag name                                       |
-| majorTag    | major version tag name                         |
-| version     | semantic version                               |
-| major       | major version                                  |
+| key          | value                                                           |
+| :----------- | :-------------------------------------------------------------- |
+| created      | 'true' if a release was created                                 |
+| pre-release  | 'alpha' / 'beta' / 'rc' if the created release is a pre-release |
+| tag          | tag name                                                        |
+| majorTag     | major version tag name                                          |
+| version      | semantic version                                                |
+| majorVersion | major version                                                   |
