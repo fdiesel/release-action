@@ -29,7 +29,7 @@ async function run() {
     if (prevTag?.version && prevTag?.version.major < nextTag.version.major) {
       const prevTagCommitSha = await actions.getTagCommitSha(prevTag);
       await actions.branches.create(
-        new Ref('heads', `${nextTag.version.major}.x`),
+        new Ref('heads', `${prevTag.version.major}.x`),
         prevTagCommitSha
       );
     }
