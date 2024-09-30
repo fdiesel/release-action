@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Actions, RefActions, ReleaseActions } from './actions';
 import { Commit } from './lib/commit';
-import { FullyQualifiedRef, RefTypes } from './lib/ref';
+import { FullyQualifiedRef, RefTypes, ShortenedRef } from './lib/ref';
 import { ReleaseBody } from './lib/release';
 import { Tag } from './lib/tag';
 
@@ -125,17 +125,17 @@ class GitHubRefs<Type extends RefTypes>
     super(octokit);
   }
 
-  async create(ref: FullyQualifiedRef<Type>, sha: string): Promise<void> {
+  async create(ref: ShortenedRef<Type>, sha: string): Promise<void> {
     await this.octokit.rest.git.createRef({ ...this.repo, ref, sha });
     core.info(`Ref created: ${ref}`);
   }
 
-  async update(ref: FullyQualifiedRef<Type>, sha: string): Promise<void> {
+  async update(ref: ShortenedRef<Type>, sha: string): Promise<void> {
     await this.octokit.rest.git.updateRef({ ...this.repo, ref, sha });
     core.info(`Ref updated: ${ref}`);
   }
 
-  async save(ref: FullyQualifiedRef<Type>, sha: string): Promise<void> {
+  async save(ref: ShortenedRef<Type>, sha: string): Promise<void> {
     let refAlreadyExists = false;
     try {
       await this.octokit.rest.git.getRef({ ...this.repo, ref });
@@ -153,7 +153,7 @@ class GitHubRefs<Type extends RefTypes>
     }
   }
 
-  async delete(ref: FullyQualifiedRef<Type>): Promise<void> {
+  async delete(ref: ShortenedRef<Type>): Promise<void> {
     await this.octokit.rest.git.deleteRef({ ...this.repo, ref });
     core.info(`Ref deleted: ${ref}`);
   }

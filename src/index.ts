@@ -28,13 +28,13 @@ async function run() {
     if (prevTag?.version && prevTag?.version.major < nextTag.version.major) {
       const prevTagCommitSha = await actions.getTagCommitSha(prevTag);
       await actions.branches.create(
-        `refs/heads/${prevTag.version.major}.x`,
+        `heads/${prevTag.version.major}.x`,
         prevTagCommitSha
       );
     }
 
     // create tag and draft release
-    await actions.tags.create(nextTag.fqRef, commits[0].sha);
+    await actions.tags.create(nextTag.shortRef, commits[0].sha);
     const releaseId = await actions.releases.draft(prevTag, nextTag, commits);
 
     core.saveState('releaseId', releaseId);

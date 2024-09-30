@@ -23,19 +23,19 @@ async function run() {
     // get latest commit sha of branch
     const latestCommitSha = await actions.getLatestCommitSha();
     // update tag and publish release with latest commit sha of branch
-    await actions.tags.update(nextTag.fqRef, latestCommitSha);
+    await actions.tags.update(nextTag.shortRef, latestCommitSha);
     await actions.releases.publish(releaseId, latestCommitSha);
     // create or update major tag if not pre-release
     if (!nextTag.version.preRelease) {
-      await actions.tags.save(nextTag.fqMajorRef, latestCommitSha);
+      await actions.tags.save(nextTag.shortMajorRef, latestCommitSha);
     }
   } else {
     // rollback release and tag
     await actions.releases.delete(releaseId);
-    await actions.tags.delete(nextTag.fqRef);
+    await actions.tags.delete(nextTag.shortRef);
     // rollback release branch if major version was bumped
     if (prevTag && prevTag.version.major < nextTag.version.major) {
-      await actions.branches.delete(`refs/heads/${prevTag.version.major}.x`);
+      await actions.branches.delete(`heads/${prevTag.version.major}.x`);
     }
   }
 }
