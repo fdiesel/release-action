@@ -8,5 +8,8 @@ class Ref {
         this.shortened = `${type}/${name}`;
         this.fullyQualified = `refs/${this.shortened}`;
     }
+    toString() {
+        return this.fullyQualified;
+    }
 }
 exports.Ref = Ref;
