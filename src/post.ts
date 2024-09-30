@@ -14,7 +14,7 @@ const nextVersion = core.getState('nextVersion');
 async function run() {
   displayVersion();
   if (!releaseId || !nextVersion) return;
-  const nextTag = Tag.parseTag(nextVersion);
+  const nextTag = Tag.parseVersion(nextVersion);
   const prevTag = prevVersion ? Tag.parseVersion(prevVersion) : undefined;
 
   const actions: Actions<any> = new GitHub(inputs.token);
