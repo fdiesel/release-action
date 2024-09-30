@@ -53,20 +53,20 @@ function run() {
             // get latest commit sha of branch
             const latestCommitSha = yield actions.getLatestCommitSha();
             // update tag and publish release with latest commit sha of branch
-            yield actions.tags.update(nextTag.fqRef, latestCommitSha);
+            yield actions.tags.update(nextTag.shortRef, latestCommitSha);
             yield actions.releases.publish(releaseId, latestCommitSha);
             // create or update major tag if not pre-release
             if (!nextTag.version.preRelease) {
-                yield actions.tags.save(nextTag.fqMajorRef, latestCommitSha);
+                yield actions.tags.save(nextTag.shortMajorRef, latestCommitSha);
             }
         }
         else {
             // rollback release and tag
             yield actions.releases.delete(releaseId);
-            yield actions.tags.delete(nextTag.fqRef);
+            yield actions.tags.delete(nextTag.shortRef);
             // rollback release branch if major version was bumped
             if (prevTag && prevTag.version.major < nextTag.version.major) {
-                yield actions.branches.delete(`refs/heads/${prevTag.version.major}.x`);
+                yield actions.branches.delete(`heads/${prevTag.version.major}.x`);
             }
         }
     });
