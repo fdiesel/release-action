@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const github_1 = require("./github");
 const inputs_1 = require("./inputs");
+const ref_1 = require("./lib/ref");
 const tag_1 = require("./lib/tag");
 const utils_1 = require("./lib/utils");
 const status = core.getInput('_job_status');
@@ -53,20 +54,20 @@ function run() {
             // get latest commit sha of branch
             const latestCommitSha = yield actions.getLatestCommitSha();
             // update tag and publish release with latest commit sha of branch
-            yield actions.tags.update(nextTag.shortRef, latestCommitSha);
+            yield actions.tags.update(nextTag.ref, latestCommitSha);
             yield actions.releases.publish(releaseId, latestCommitSha);
             // create or update major tag if not pre-release
             if (!nextTag.version.preRelease) {
-                yield actions.tags.save(nextTag.shortMajorRef, latestCommitSha);
+                yield actions.tags.save(nextTag.ref, latestCommitSha);
             }
         }
         else {
             // rollback release and tag
             yield actions.releases.delete(releaseId);
-            yield actions.tags.delete(nextTag.shortRef);
+            yield actions.tags.delete(nextTag.ref);
             // rollback release branch if major version was bumped
             if (prevTag && prevTag.version.major < nextTag.version.major) {
-                yield actions.branches.delete(`heads/${prevTag.version.major}.x`);
+                yield actions.branches.delete(new ref_1.Ref('heads', `${nextTag.version.major}.x`));
             }
         }
     });

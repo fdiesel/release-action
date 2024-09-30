@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const github_1 = require("./github");
 const inputs_1 = require("./inputs");
+const ref_1 = require("./lib/ref");
 const tag_1 = require("./lib/tag");
 const utils_1 = require("./lib/utils");
 function run() {
@@ -53,10 +54,10 @@ function run() {
             // create release branch if major version is bumped
             if ((prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major) {
                 const prevTagCommitSha = yield actions.getTagCommitSha(prevTag);
-                yield actions.branches.create(`heads/${prevTag.version.major}.x`, prevTagCommitSha);
+                yield actions.branches.create(new ref_1.Ref('heads', `${nextTag.version.major}.x`), prevTagCommitSha);
             }
             // create tag and draft release
-            yield actions.tags.create(nextTag.shortRef, commits[0].sha);
+            yield actions.tags.create(nextTag.ref, commits[0].sha);
             const releaseId = yield actions.releases.draft(prevTag, nextTag, commits);
             core.saveState('releaseId', releaseId);
             core.saveState('prevVersion', prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString());

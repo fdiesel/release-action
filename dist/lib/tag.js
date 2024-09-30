@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tag = void 0;
+const ref_1 = require("./ref");
 const version_1 = require("./version");
 class Tag {
     constructor(version) {
         this.version = version;
-        this.shortRef = `tags/${this.toString()}`;
-        this.shortMajorRef = `tags/${this.toMajorString()}`;
-        this.fqRef = `refs/${this.shortRef}`;
-        this.fqMajorRef = `refs/${this.shortMajorRef}`;
+        this.ref = new ref_1.Ref('tags', this.toString());
     }
     static parseTag(tag) {
         const version = version_1.SemVer.parse(tag.substring(Tag.PREFIX.length));

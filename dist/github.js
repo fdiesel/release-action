@@ -85,7 +85,7 @@ class GitHub extends GitHubAction {
     getCommits(sinceTag) {
         return __awaiter(this, void 0, void 0, function* () {
             if (sinceTag) {
-                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.fqRef, head: this.branchRef }));
+                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.ref.fullyQualified, head: this.branchRef }));
                 return data.commits.map((commit) => new GitHubCommit(commit));
             }
             else {
@@ -114,13 +114,13 @@ class GitHubRefs extends GitHubAction {
     }
     create(ref, sha) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.octokit.rest.git.createRef(Object.assign(Object.assign({}, this.repo), { ref, sha }));
+            yield this.octokit.rest.git.createRef(Object.assign(Object.assign({}, this.repo), { ref: ref.fullyQualified, sha }));
             core.info(`Ref created: ${ref}`);
         });
     }
     update(ref, sha) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.octokit.rest.git.updateRef(Object.assign(Object.assign({}, this.repo), { ref, sha }));
+            yield this.octokit.rest.git.updateRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened, sha }));
             core.info(`Ref updated: ${ref}`);
         });
     }
@@ -128,7 +128,7 @@ class GitHubRefs extends GitHubAction {
         return __awaiter(this, void 0, void 0, function* () {
             let refAlreadyExists = false;
             try {
-                yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref }));
+                yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened }));
                 refAlreadyExists = true;
             }
             catch (error) {
@@ -147,7 +147,7 @@ class GitHubRefs extends GitHubAction {
     }
     delete(ref) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.octokit.rest.git.deleteRef(Object.assign(Object.assign({}, this.repo), { ref }));
+            yield this.octokit.rest.git.deleteRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened }));
             core.info(`Ref deleted: ${ref}`);
         });
     }
