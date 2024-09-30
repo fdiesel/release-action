@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Release
-        uses: fdiesel/release-action@v1
+        uses: fdiesel/release-action@v
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # required
           prefix: v # optional tag prefix (default: v)
