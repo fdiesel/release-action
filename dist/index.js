@@ -33,32 +33,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
-const github_1 = require("./github");
 const inputs_1 = require("./inputs");
 const ref_1 = require("./lib/ref");
+const release_1 = require("./lib/release");
 const tag_1 = require("./lib/tag");
 const utils_1 = require("./lib/utils");
+const github_1 = require("./providers/github");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         (0, utils_1.displayVersion)();
-        const actions = new github_1.GitHub(inputs_1.inputs.token);
+        const provider = new github_1.GitHubProvider(inputs_1.inputs.token);
         // get latest tag from branch
-        const prevTag = yield actions.getPrevTag();
+        const prevTag = yield provider.getPrevTag();
         // get commits from branch
-        const commits = yield actions.getCommits(prevTag);
+        const newCommits = yield provider.getCommits(prevTag);
         // determine next version
-        const nextVersion = (0, utils_1.determineNextVersion)(prevTag === null || prevTag === void 0 ? void 0 : prevTag.version, commits, inputs_1.inputs.phase);
+        const nextVersion = (0, utils_1.determineNextVersion)(prevTag === null || prevTag === void 0 ? void 0 : prevTag.version, newCommits, inputs_1.inputs.phase);
         const nextTag = nextVersion && new tag_1.Tag(nextVersion);
         if (nextTag) {
+            const majorIsBumped = (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major;
             // create release branch if major version is bumped
-            if ((prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major) {
-                const prevTagCommitSha = yield actions.getTagCommitSha(prevTag);
-                yield actions.branches.create(new ref_1.Ref('heads', `${prevTag.version.major}.x`), prevTagCommitSha);
+            if (majorIsBumped) {
+                const prevTagCommitSha = yield provider.getTagCommitSha(prevTag);
+                yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, `${prevTag.version.major}.x`), prevTagCommitSha);
             }
             // create tag and draft release
-            yield actions.tags.create(nextTag.ref, commits[0].sha);
-            const releaseId = yield actions.releases.draft(prevTag, nextTag, commits);
+            yield provider.tags.create(nextTag.ref, newCommits[0].sha);
+            const releaseBody = majorIsBumped
+                ? new release_1.ReleaseProdBody(provider.baseUri, prevTag, nextTag, yield provider.getCommits())
+                : new release_1.ReleaseDevBody(provider.baseUri, prevTag, nextTag, newCommits);
+            const releaseId = yield provider.releases.draft(nextTag, releaseBody.toString());
             core.saveState('releaseId', releaseId);
             core.saveState('prevVersion', prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString());
             core.saveState('nextVersion', nextTag.version.toString());

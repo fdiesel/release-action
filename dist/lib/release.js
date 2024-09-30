@@ -3,14 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReleaseProdBody = exports.ReleaseDevBody = exports.ReleaseBody = void 0;
 const commit_1 = require("./commit");
 class ReleaseBody {
-    constructor(baseUri, prevTag, nextTag, commits) {
+    constructor(baseUri, prevTag, nextTag, sections) {
         this.content = [
             ReleaseBody.createHeader(baseUri, prevTag, nextTag),
-            ...[
-                ReleaseBody.createTypeSection('⚠ BREAKING CHANGES', commits, (commit) => commit.isBreakingChange),
-                ReleaseBody.createTypeSection('Features', commits, (commit) => commit.type === commit_1.ConventionalCommitType.FEAT),
-                ReleaseBody.createTypeSection('Bug Fixes', commits, (commit) => commit.type === commit_1.ConventionalCommitType.FIX)
-            ].filter((section) => section !== null)
+            ...sections.filter((section) => section !== null)
         ].join('\n');
     }
     static createHeader(baseUri, prevTag, nextTag) {
@@ -36,8 +32,22 @@ class ReleaseBody {
 }
 exports.ReleaseBody = ReleaseBody;
 class ReleaseDevBody extends ReleaseBody {
+    constructor(baseUri, prevTag, nextTag, commits) {
+        const sections = [
+            ReleaseBody.createTypeSection('⚠ BREAKING CHANGES', commits, (commit) => commit.isBreakingChange),
+            ReleaseBody.createTypeSection('Features', commits, (commit) => commit.type === commit_1.ConventionalCommitType.FEAT),
+            ReleaseBody.createTypeSection('Bug Fixes', commits, (commit) => commit.type === commit_1.ConventionalCommitType.FIX)
+        ];
+        super(baseUri, prevTag, nextTag, sections);
+    }
 }
 exports.ReleaseDevBody = ReleaseDevBody;
 class ReleaseProdBody extends ReleaseBody {
+    constructor(baseUri, prevTag, nextTag, commits) {
+        const sections = [
+            ReleaseBody.createTypeSection('Features', commits, (commit) => commit.type === commit_1.ConventionalCommitType.FEAT)
+        ];
+        super(baseUri, prevTag, nextTag, sections);
+    }
 }
 exports.ReleaseProdBody = ReleaseProdBody;

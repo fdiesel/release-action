@@ -6,8 +6,8 @@ const version_1 = require("./version");
 class Tag {
     constructor(version) {
         this.version = version;
-        this.ref = new ref_1.Ref('tags', this.toString());
-        this.majorRef = new ref_1.Ref('tags', this.toMajorString());
+        this.ref = new ref_1.Ref(ref_1.RefTypes.TAGS, this.toString());
+        this.majorRef = new ref_1.Ref(ref_1.RefTypes.TAGS, this.toMajorString());
     }
     static parseTag(tag) {
         const version = version_1.SemVer.parse(tag.substring(Tag.PREFIX.length));
