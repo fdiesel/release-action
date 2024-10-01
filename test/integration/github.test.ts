@@ -1,7 +1,6 @@
 import { context, getOctokit } from '@actions/github';
-import { describe, expect, test } from '@jest/globals';
+import { afterAll, describe, expect, test } from '@jest/globals';
 import { randomUUID } from 'crypto';
-import { after } from 'node:test';
 import { inputs } from '../../src/inputs';
 import { Provider } from '../../src/lib/providers';
 import { Ref, RefTypes } from '../../src/lib/ref';
@@ -18,7 +17,7 @@ async function generateParams<Type extends RefTypes>(
 }
 
 describe('github', () => {
-  after(async () => {
+  afterAll(async () => {
     const repo = context.repo;
     const octokit = getOctokit(inputs.token);
     const regex =
