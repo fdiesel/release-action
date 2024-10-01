@@ -28,7 +28,7 @@ jobs:
         uses: fdiesel/release-action@v
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # required
-          phase: # phase (dev / prod) (default: dev)
+          phase: prod # phase (dev -> 0.y.z / prod -> x>0.y.z) (default: dev)
 ```
 
 ### Outputs
