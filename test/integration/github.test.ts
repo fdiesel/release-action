@@ -50,11 +50,11 @@ describe('github', () => {
     expect(latestCommitSha).toBeTruthy();
   });
 
-  test('should check a tag', async () => {
-    const { ref, sha } = await generateParams(RefTypes.TAGS);
-    await provider.tags.create(ref, sha);
-    await expect(provider.tags.get(ref)).resolves.toBeDefined();
-  });
+  // test('should check a tag', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.TAGS);
+  //   await provider.tags.create(ref, sha);
+  //   await expect(provider.tags.get(ref)).resolves.toBeDefined();
+  // });
 
   test('should creating a tag', async () => {
     const { ref, sha } = await generateParams(RefTypes.TAGS);
@@ -80,11 +80,11 @@ describe('github', () => {
     await expect(provider.tags.get(ref)).resolves.toBeDefined();
   });
 
-  test('should check a branch', async () => {
-    const { ref, sha } = await generateParams(RefTypes.HEADS);
-    await provider.branches.create(ref, sha);
-    await expect(provider.branches.get(ref)).resolves.toBeDefined();
-  });
+  // test('should check a branch', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.HEADS);
+  //   await provider.branches.create(ref, sha);
+  //   await expect(provider.branches.get(ref)).resolves.toBeDefined();
+  // });
 
   test('should creating a branch', async () => {
     const { ref, sha } = await generateParams(RefTypes.HEADS);
