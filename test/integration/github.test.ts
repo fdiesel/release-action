@@ -1,6 +1,7 @@
+import { context, getOctokit } from '@actions/github';
 import { describe, expect, test } from '@jest/globals';
 import { randomUUID } from 'crypto';
-import { afterEach } from 'node:test';
+import { after } from 'node:test';
 import { inputs } from '../../src/inputs';
 import { Provider } from '../../src/lib/providers';
 import { Ref, RefTypes } from '../../src/lib/ref';
@@ -8,30 +9,34 @@ import { GitHubProvider } from '../../src/providers/github';
 
 const provider: Provider<unknown> = new GitHubProvider(inputs.token);
 
-const refStore: Ref<RefTypes>[] = [];
-
 async function generateParams<Type extends RefTypes>(
   type: Type
 ): Promise<{ ref: Ref<Type>; sha: string }> {
   const ref = new Ref(type, `test-${randomUUID()}`);
-  refStore.push(ref);
   const sha = await provider.getLatestCommitSha();
   return { ref, sha };
 }
 
 describe('github', () => {
-  afterEach(async () => {
-    for (const ref of refStore) {
-      switch (ref.type) {
-        case RefTypes.HEADS:
-          await provider.branches.delete(ref as Ref<RefTypes.HEADS>);
-          break;
-        case RefTypes.TAGS:
-          await provider.tags.delete(ref as Ref<RefTypes.TAGS>);
-          break;
+  after(async () => {
+    const repo = context.repo;
+    const octokit = getOctokit(inputs.token);
+    const regex =
+      /test-[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+
+    const { data: refs } = await octokit.rest.git.listMatchingRefs({
+      ...repo,
+      ref: ''
+    });
+
+    for (const ref of refs) {
+      if (regex.test(ref.ref)) {
+        await octokit.rest.git.deleteRef({
+          ...repo,
+          ref: ref.ref
+        });
       }
     }
-    refStore.length = 0;
   });
 
   test('should get latest commit sha', async () => {
