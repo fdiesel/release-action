@@ -75,7 +75,7 @@ jobs:
 
       - name: Release
         id: release
-        uses: fdiesel/release-action@main
+        uses: ./
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           phase: prod
