@@ -23,10 +23,16 @@ describe('github', () => {
     const regex =
       /test-[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-    const { data: refs } = await octokit.rest.git.listMatchingRefs({
-      ...repo,
-      ref: ''
-    });
+    const refs: Awaited<
+      ReturnType<(typeof octokit)['rest']['git']['getRef']>
+    >['data'][] = [];
+    for (const type of Object.values(RefTypes)) {
+      const { data } = await octokit.rest.git.listMatchingRefs({
+        ...repo,
+        ref: `${type}/`
+      });
+      refs.push(...data);
+    }
 
     for (const ref of refs) {
       if (regex.test(ref.ref)) {
