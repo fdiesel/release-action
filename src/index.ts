@@ -11,6 +11,9 @@ async function run() {
   displayVersion();
   const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
+  const { actor, permission } = await provider.getPermission();
+  core.info(`Actor: ${actor}, Permission: ${permission}`);
+
   // get latest tag from branch
   const prevTag = await provider.getPrevTag();
 

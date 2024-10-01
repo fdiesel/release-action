@@ -4,6 +4,7 @@ import { Tag } from './tag';
 
 export interface Provider<ProviderCommitType, ProviderRefType> {
   baseUri: string;
+  getPermission(): Promise<{ actor: string; permission: string }>;
   getPrevTag(): Promise<Tag | undefined>;
   getCommits(sinceTag?: Tag): Promise<Commit<ProviderCommitType>[]>;
   getTagCommitSha(tag: Tag): Promise<string>;
