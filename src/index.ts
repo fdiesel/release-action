@@ -56,6 +56,9 @@ async function run() {
     core.saveState('releaseId', releaseId);
     core.saveState('prevVersion', prevTag?.version.toString());
     core.saveState('nextVersion', nextTag.version.toString());
+    core.debug(`releaseId: '${releaseId}'`);
+    core.debug(`previousVersion: '${prevTag?.version.toString()}'`);
+    core.debug(`nextVersion: '${nextTag.version.toString()}'`);
 
     core.setOutput('tag', nextTag.toString());
     core.setOutput('majorTag', nextTag.toMajorString());

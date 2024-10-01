@@ -57,47 +57,60 @@ export class GitHubProvider
     this.releases = new GitHubReleases(this.octokit);
     this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
 
-    core.info(`GitHub Provider (branch: ${this.branchRef.name})`);
+    core.debug(
+      `Initialized GitHub Provider on branch: '${this.branchRef.name}'`
+    );
   }
 
   async getPrevTag(): Promise<Tag | undefined> {
+    core.debug('Getting previous tag');
     const { data } = await this.octokit.rest.repos.listTags({
       ...this.repo,
       per_page: 1
     });
+    core.debug(`Previous tag: '${data.length > 0 ? data[0].name : ''}'`);
     return data.length > 0 ? Tag.parseTag(data[0].name) : undefined;
   }
 
   async getCommits(sinceTag?: Tag): Promise<Commit<GitHubCommitType>[]> {
+    core.debug(
+      `Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`
+    );
     if (sinceTag) {
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
         base: sinceTag.ref.fullyQualified,
         head: this.branchRef.name
       });
+      core.debug(`Received commits: ${data.commits.length}`);
       return data.commits.map((commit) => new GitHubCommit(commit));
     } else {
       const { data } = await this.octokit.rest.repos.listCommits({
         ...this.repo,
         sha: this.branchRef.name
       });
+      core.debug(`Received commits: ${data.length}`);
       return data.map((commit) => new GitHubCommit(commit));
     }
   }
 
   async getTagCommitSha(tag: Tag): Promise<string> {
+    core.debug(`Getting commit SHA for tag '${tag.toString()}'`);
     const { data } = await this.octokit.rest.git.getRef({
       ...this.repo,
       ref: tag.ref.shortened
     });
+    core.debug(`Received commit SHA: '${data.object.sha}'`);
     return data.object.sha;
   }
 
   async getLatestCommitSha(): Promise<string> {
+    core.debug('Getting latest commit SHA');
     const { data } = await this.octokit.rest.repos.getCommit({
       ...this.repo,
       ref: this.branchRef.name
     });
+    core.debug(`Received latest commit SHA: '${data.sha}'`);
     return data.sha;
   }
 }
@@ -111,14 +124,17 @@ class GitHubRefs<Type extends RefTypes>
   }
 
   async get(ref: Ref<Type>): Promise<GitHubRefType | undefined> {
+    core.debug(`Getting ref: '${ref}'`);
     try {
       const { data } = await this.octokit.rest.git.getRef({
         ...this.repo,
         ref: ref.fullyQualified
       });
+      core.debug(`Received ref: '${data.ref}'`);
       return data;
     } catch (error: any) {
       if (error?.status === 404) {
+        core.debug(`Received ref: 'undefined'`);
         return undefined;
       } else {
         core.setFailed(error?.message);
@@ -128,6 +144,7 @@ class GitHubRefs<Type extends RefTypes>
   }
 
   async create(ref: Ref<Type>, sha: string): Promise<void> {
+    core.debug(`Creating ref: '${ref}'`);
     await this.octokit.rest.git.createRef({
       ...this.repo,
       ref: ref.fullyQualified,
@@ -137,6 +154,7 @@ class GitHubRefs<Type extends RefTypes>
   }
 
   async update(ref: Ref<Type>, sha: string): Promise<void> {
+    core.debug(`Updating ref: '${ref}'`);
     await this.octokit.rest.git.updateRef({
       ...this.repo,
       ref: ref.shortened,
@@ -146,6 +164,7 @@ class GitHubRefs<Type extends RefTypes>
   }
 
   async delete(ref: Ref<Type>): Promise<void> {
+    core.debug(`Deleting ref: '${ref}'`);
     await this.octokit.rest.git.deleteRef({ ...this.repo, ref: ref.shortened });
     core.info(`Ref deleted: ${ref}`);
   }
@@ -157,6 +176,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
   }
 
   async draft(nextTag: Tag, body: string): Promise<string> {
+    core.debug(`Drafting release: '${nextTag.toString()}'`);
     const { data } = await this.octokit.rest.repos.createRelease({
       ...this.repo,
       tag_name: nextTag.toString(),
@@ -170,6 +190,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
   }
 
   async publish(id: string, sha: string): Promise<void> {
+    core.debug(`Publishing release: '${id}'`);
     await this.octokit.rest.repos.updateRelease({
       ...this.repo,
       release_id: parseInt(id),
@@ -180,6 +201,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
   }
 
   async delete(id: string): Promise<void> {
+    core.debug(`Deleting release: '${id}'`);
     await this.octokit.rest.repos.deleteRelease({
       ...this.repo,
       release_id: parseInt(id)
