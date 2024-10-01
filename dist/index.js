@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const inputs_1 = require("./inputs");
+const ref_1 = require("./lib/ref");
 const release_1 = require("./lib/release");
 const tag_1 = require("./lib/tag");
 const utils_1 = require("./lib/utils");
@@ -52,6 +53,11 @@ function run() {
         const nextTag = nextVersion && new tag_1.Tag(nextVersion);
         if (nextTag) {
             const majorIsBumped = (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major;
+            // create release branch if major version is bumped
+            if (majorIsBumped) {
+                const prevTagCommitSha = yield provider.getTagCommitSha(prevTag);
+                yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, `${prevTag.version.major}.x`), prevTagCommitSha);
+            }
             // create tag and draft release
             yield provider.tags.create(nextTag.ref, newCommits[0].sha);
             const releaseBody = majorIsBumped
