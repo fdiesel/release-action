@@ -36,6 +36,7 @@ exports.GitHubProvider = void 0;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const commit_1 = require("../lib/commit");
+const ref_1 = require("../lib/ref");
 const tag_1 = require("../lib/tag");
 class GitHubCommit extends commit_1.Commit {
     constructor(commit) {
@@ -46,10 +47,9 @@ class GitHubAction {
     constructor(octokit) {
         this.repo = github.context.repo;
         this.octokit = octokit;
-        // get branch name of the workflow
         const branchRefPrefix = 'refs/heads/';
-        this.branchName = github.context.ref.split(branchRefPrefix).pop();
-        this.branchRef = `${branchRefPrefix}${this.branchName}`;
+        const branchName = github.context.ref.split(branchRefPrefix).pop();
+        this.branchRef = new ref_1.Ref(ref_1.RefTypes.HEADS, branchName);
     }
 }
 class GitHubProvider extends GitHubAction {
@@ -60,6 +60,7 @@ class GitHubProvider extends GitHubAction {
         this.branches = new GitHubRefs(this.octokit);
         this.releases = new GitHubReleases(this.octokit);
         this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
+        core.info(`GitHub Provider (branch: ${this.branchRef.name})`);
     }
     getPrevTag() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -70,24 +71,24 @@ class GitHubProvider extends GitHubAction {
     getCommits(sinceTag) {
         return __awaiter(this, void 0, void 0, function* () {
             if (sinceTag) {
-                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.ref.fullyQualified, head: this.branchRef }));
+                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.ref.fullyQualified, head: this.branchRef.name }));
                 return data.commits.map((commit) => new GitHubCommit(commit));
             }
             else {
-                const { data } = yield this.octokit.rest.repos.listCommits(Object.assign(Object.assign({}, this.repo), { sha: this.branchName }));
+                const { data } = yield this.octokit.rest.repos.listCommits(Object.assign(Object.assign({}, this.repo), { sha: this.branchRef.name }));
                 return data.map((commit) => new GitHubCommit(commit));
             }
         });
     }
     getTagCommitSha(tag) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: `tags/${tag.toString()}` }));
+            const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: tag.ref.shortened }));
             return data.object.sha;
         });
     }
     getLatestCommitSha() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.octokit.rest.repos.getCommit(Object.assign(Object.assign({}, this.repo), { ref: this.branchRef }));
+            const { data } = yield this.octokit.rest.repos.getCommit(Object.assign(Object.assign({}, this.repo), { ref: this.branchRef.name }));
             return data.sha;
         });
     }
@@ -97,18 +98,20 @@ class GitHubRefs extends GitHubAction {
     constructor(octokit) {
         super(octokit);
     }
-    exists(ref) {
+    get(ref) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened }));
-                return true;
+                const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.fullyQualified }));
+                return data;
             }
             catch (error) {
-                if (error.status !== 404) {
-                    core.setFailed(error.message);
+                if ((error === null || error === void 0 ? void 0 : error.status) === 404) {
+                    return undefined;
+                }
+                else {
+                    core.setFailed(error === null || error === void 0 ? void 0 : error.message);
                     throw error;
                 }
-                return false;
             }
         });
     }

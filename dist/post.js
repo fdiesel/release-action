@@ -45,34 +45,33 @@ const nextVersion = core.getState('nextVersion');
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, utils_1.displayVersion)();
-        if (!releaseId || !nextVersion)
-            return;
-        const nextTag = tag_1.Tag.parseVersion(nextVersion);
         const prevTag = prevVersion ? tag_1.Tag.parseVersion(prevVersion) : undefined;
+        const nextTag = nextVersion ? tag_1.Tag.parseVersion(nextVersion) : undefined;
         const provider = new github_1.GitHubProvider(inputs_1.inputs.token);
         if (status === 'success') {
-            // get latest commit sha of branch
             const latestCommitSha = yield provider.getLatestCommitSha();
-            // update tag and publish release with latest commit sha of branch
-            yield provider.tags.update(nextTag.ref, latestCommitSha);
-            yield provider.releases.publish(releaseId, latestCommitSha);
-            // create or update major tag if not pre-release
-            if (!nextTag.version.preRelease) {
-                if (yield provider.tags.exists(nextTag.majorRef)) {
-                    yield provider.tags.update(nextTag.majorRef, latestCommitSha);
+            if (releaseId && nextTag) {
+                yield provider.tags.update(nextTag.ref, latestCommitSha);
+                yield provider.releases.publish(releaseId, latestCommitSha);
+            }
+            const tag = nextTag || prevTag;
+            if (tag && !tag.version.preRelease) {
+                const remoteTag = yield provider.tags.get(tag.majorRef);
+                if (remoteTag !== undefined) {
+                    yield provider.tags.update(tag.majorRef, latestCommitSha);
                 }
                 else {
-                    yield provider.tags.create(nextTag.majorRef, latestCommitSha);
+                    yield provider.tags.create(tag.majorRef, latestCommitSha);
                 }
             }
         }
         else {
-            // rollback release and tag
-            yield provider.releases.delete(releaseId);
-            yield provider.tags.delete(nextTag.ref);
-            // rollback release branch if major version was bumped
-            if (prevTag && prevTag.version.major < nextTag.version.major) {
-                yield provider.branches.delete(new ref_1.Ref(ref_1.RefTypes.HEADS, `${nextTag.version.major}.x`));
+            if (nextTag) {
+                yield provider.releases.delete(releaseId);
+                yield provider.tags.delete(nextTag.ref);
+                if (prevTag && prevTag.version.major < nextTag.version.major) {
+                    yield provider.branches.delete(new ref_1.Ref(ref_1.RefTypes.HEADS, `${nextTag.version.major}.x`));
+                }
             }
         }
     });
