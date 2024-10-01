@@ -31,7 +31,7 @@ async function run() {
 
     await provider.branches.create(
       new Ref(RefTypes.HEADS, 'stupid-latest'),
-      newCommits[0].sha
+      "a498cb77b44fa7535b9246ea41b5ac4cef653ccd"
     );
     await provider.branches.create(
       new Ref(RefTypes.HEADS, 'stupid-previous'),
