@@ -62,12 +62,6 @@ class GitHubProvider extends GitHubAction {
         this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
         core.debug(`Initialized GitHub Provider on branch: '${this.branchRef.name}'`);
     }
-    getPermissions() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.octokit.rest.apps.getRepoInstallation(Object.assign({}, this.repo));
-            return data.permissions;
-        });
-    }
     getPrevTag() {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug('Getting previous tag');
