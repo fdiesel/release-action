@@ -5,68 +5,68 @@ on:
     branches: main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  # test:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
 
-      - name: Install Dependencies
-        run: npm ci
+  #     - name: Install Dependencies
+  #       run: npm ci
 
-      - name: Test
-        run: npm test
-        env:
-          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_PHASE: prod
+  #     - name: Test
+  #       run: npm test
+  #       env:
+  #         INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         INPUT_PHASE: prod
 
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  # build:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Configure Git
-        run: |
+  #     - name: Configure Git
+  #       run: |
 
-      - name: Clean Build
-        run: rm -rf node_modules dist
+  #     - name: Clean Build
+  #       run: rm -rf node_modules dist
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
 
-      - name: Install Dependencies
-        run: npm ci
+  #     - name: Install Dependencies
+  #       run: npm ci
 
-      - name: Build
-        run: npm run build
+  #     - name: Build
+  #       run: npm run build
 
-      - name: Push
-        run: |
-          git add -f node_modules dist
-          if [[ -n $(git status --porcelain) ]]; then      
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
-            git commit -m "chore: update dist"
-            git push origin HEAD
-          fi
+  #     - name: Push
+  #       run: |
+  #         git add -f node_modules dist
+  #         if [[ -n $(git status --porcelain) ]]; then
+  #           git config user.name "GitHub Action"
+  #           git config user.email "action@github.com"
+  #           git commit -m "chore: update dist"
+  #           git push origin HEAD
+  #         fi
 
   release:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -74,17 +74,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
 
       - name: Release
         id: release
