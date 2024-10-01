@@ -29,24 +29,6 @@ async function run() {
     const majorIsBumped =
       prevTag?.version && prevTag?.version.major < nextTag.version.major;
 
-    await provider.branches.create(
-      new Ref(RefTypes.HEADS, 'stupid-latest'),
-      "a498cb77b44fa7535b9246ea41b5ac4cef653ccd"
-    );
-    await provider.branches.create(
-      new Ref(RefTypes.HEADS, 'stupid-previous'),
-      newCommits[1].sha
-    );
-
-    // create release branch if major version is bumped
-    if (majorIsBumped) {
-      const prevTagCommitSha = await provider.getTagCommitSha(prevTag);
-      await provider.branches.create(
-        new Ref(RefTypes.HEADS, `${prevTag.version.major}.x`),
-        prevTagCommitSha
-      );
-    }
-
     // create tag and draft release
     await provider.tags.create(nextTag.ref, newCommits[0].sha);
     const releaseBody = majorIsBumped
