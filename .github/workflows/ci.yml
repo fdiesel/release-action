@@ -4,12 +4,12 @@ on:
   push:
     branches: main
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
@@ -31,11 +31,7 @@ jobs:
 
   build:
     needs: test
-
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
@@ -68,11 +64,7 @@ jobs:
 
   release:
     needs: build
-
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
@@ -81,9 +73,9 @@ jobs:
       - name: Release
         id: release
         uses: ./
-        env:
-          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_PHASE: prod
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          phase: prod
 
       - name: Update Version in Files
         run: |
