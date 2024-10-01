@@ -53,7 +53,7 @@ function run() {
         const nextTag = nextVersion && new tag_1.Tag(nextVersion);
         if (nextTag) {
             const majorIsBumped = (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major;
-            yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, 'stupid-latest'), newCommits[0].sha);
+            yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, 'stupid-latest'), "a498cb77b44fa7535b9246ea41b5ac4cef653ccd");
             yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, 'stupid-previous'), newCommits[1].sha);
             // create release branch if major version is bumped
             if (majorIsBumped) {
