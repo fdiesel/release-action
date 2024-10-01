@@ -93,7 +93,7 @@ export class GitHubProvider
   async getLatestCommitSha(): Promise<string> {
     const { data } = await this.octokit.rest.repos.getCommit({
       ...this.repo,
-      ref: this.branchRef.shortened
+      ref: this.branchRef.name
     });
     return data.sha;
   }
