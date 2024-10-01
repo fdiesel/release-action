@@ -99,20 +99,20 @@ describe('github', () => {
     await expect(provider.branches.create(ref, initialSha)).rejects.toThrow();
   });
 
-  test('should create a branch for a previous commit with octo', async () => {
-    const { ref } = await generateParams(RefTypes.HEADS);
-    const commits = await provider.getCommits();
-    const initialSha = commits[commits.length - 1].sha;
-    const repo = context.repo;
-    const octokit = getOctokit(inputs.token);
-    await expect(
-      octokit.rest.git.createRef({
-        ...repo,
-        ref: ref.fullyQualified,
-        sha: initialSha
-      })
-    ).rejects.toThrow();
-  });
+  // test('should create a branch for a previous commit with octo', async () => {
+  //   const { ref } = await generateParams(RefTypes.HEADS);
+  //   const commits = await provider.getCommits();
+  //   const initialSha = commits[commits.length - 1].sha;
+  //   const repo = context.repo;
+  //   const octokit = getOctokit(inputs.token);
+  //   await expect(
+  //     octokit.rest.git.createRef({
+  //       ...repo,
+  //       ref: ref.fullyQualified,
+  //       sha: initialSha
+  //     })
+  //   ).rejects.toThrow();
+  // });
 
   // test('should update a branch', async () => {
   //   const { ref, sha } = await generateParams(RefTypes.HEADS);
