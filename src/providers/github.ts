@@ -31,7 +31,6 @@ abstract class GitHubAction {
     this.repo = github.context.repo;
     this.octokit = octokit;
 
-    // get branch name of the workflow
     const branchRefPrefix: FullyQualifiedRef<RefTypes.HEADS> = 'refs/heads/';
     const branchName = github.context.ref.split(branchRefPrefix).pop()!;
     this.branchRef = new Ref(RefTypes.HEADS, branchName);
@@ -54,6 +53,8 @@ export class GitHubProvider
     this.branches = new GitHubRefs(this.octokit);
     this.releases = new GitHubReleases(this.octokit);
     this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
+
+    core.info(`GitHub Provider (${this.branchRef.name})`);
   }
 
   async getPrevTag(): Promise<Tag | undefined> {
@@ -84,7 +85,7 @@ export class GitHubProvider
   async getTagCommitSha(tag: Tag): Promise<string> {
     const { data } = await this.octokit.rest.git.getRef({
       ...this.repo,
-      ref: `tags/${tag.toString()}`
+      ref: tag.ref.shortened
     });
     return data.object.sha;
   }
