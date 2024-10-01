@@ -111,15 +111,16 @@ class GitHubRefs<Type extends RefTypes>
     try {
       await this.octokit.rest.git.getRef({
         ...this.repo,
-        ref: ref.shortened
+        ref: ref.fullyQualified
       });
       return true;
     } catch (error: any) {
-      if (error.status !== 404) {
+      if (error?.status === 404) {
+        return false;
+      } else {
         core.setFailed(error.message);
         throw error;
       }
-      return false;
     }
   }
 
