@@ -44,6 +44,8 @@ function run() {
         var _a;
         (0, utils_1.displayVersion)();
         const provider = new github_1.GitHubProvider(inputs_1.inputs.token);
+        const { actor, permission } = yield provider.getPermission();
+        core.info(`Actor: ${actor}, Permission: ${permission}`);
         // get latest tag from branch
         const prevTag = yield provider.getPrevTag();
         // get commits from branch
