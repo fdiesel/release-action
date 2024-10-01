@@ -23,17 +23,12 @@ describe('github', () => {
     const regex =
       /test-[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-    const { data: branchRefs } = await octokit.rest.git.listMatchingRefs({
+    const { data: refs } = await octokit.rest.git.listMatchingRefs({
       ...repo,
-      ref: 'heads/'
+      ref: ''
     });
 
-    const { data: tagRefs } = await octokit.rest.git.listMatchingRefs({
-      ...repo,
-      ref: 'tags/'
-    });
-
-    for (const ref of [...branchRefs, ...tagRefs]) {
+    for (const ref of refs) {
       if (regex.test(ref.ref)) {
         const shortenedRef = ref.ref.replace(/^refs\//, '');
         await octokit.rest.git.deleteRef({
