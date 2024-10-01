@@ -54,7 +54,7 @@ export class GitHubProvider
     this.releases = new GitHubReleases(this.octokit);
     this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
 
-    core.info(`GitHub Provider (${this.branchRef.name})`);
+    core.info(`GitHub Provider (branch: ${this.branchRef.name})`);
   }
 
   async getPrevTag(): Promise<Tag | undefined> {
@@ -93,7 +93,7 @@ export class GitHubProvider
   async getLatestCommitSha(): Promise<string> {
     const { data } = await this.octokit.rest.repos.getCommit({
       ...this.repo,
-      ref: this.branchRef.fullyQualified
+      ref: this.branchRef.shortened
     });
     return data.sha;
   }
