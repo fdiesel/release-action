@@ -25,8 +25,7 @@ class GitHubCommit extends Commit<GitHubSourceCommit> {
 abstract class GitHubAction {
   protected readonly repo: typeof github.context.repo;
   protected readonly octokit: Octokit;
-  protected readonly branchName: string;
-  protected readonly branchRef: FullyQualifiedRef<RefTypes.HEADS>;
+  protected readonly branchRef: Ref<RefTypes.HEADS>;
 
   constructor(octokit: Octokit) {
     this.repo = github.context.repo;
@@ -34,8 +33,8 @@ abstract class GitHubAction {
 
     // get branch name of the workflow
     const branchRefPrefix: FullyQualifiedRef<RefTypes.HEADS> = 'refs/heads/';
-    this.branchName = github.context.ref.split(branchRefPrefix).pop()!;
-    this.branchRef = `${branchRefPrefix}${this.branchName}`;
+    const branchName = github.context.ref.split(branchRefPrefix).pop()!;
+    this.branchRef = new Ref(RefTypes.HEADS, branchName);
   }
 }
 
@@ -70,13 +69,13 @@ export class GitHubProvider
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
         base: sinceTag.ref.fullyQualified,
-        head: this.branchRef
+        head: this.branchRef.name
       });
       return data.commits.map((commit) => new GitHubCommit(commit));
     } else {
       const { data } = await this.octokit.rest.repos.listCommits({
         ...this.repo,
-        sha: this.branchName
+        sha: this.branchRef.name
       });
       return data.map((commit) => new GitHubCommit(commit));
     }
@@ -93,7 +92,7 @@ export class GitHubProvider
   async getLatestCommitSha(): Promise<string> {
     const { data } = await this.octokit.rest.repos.getCommit({
       ...this.repo,
-      ref: this.branchRef
+      ref: this.branchRef.fullyQualified
     });
     return data.sha;
   }
