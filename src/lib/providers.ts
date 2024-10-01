@@ -2,19 +2,19 @@ import { Commit } from './commit';
 import { Ref, RefTypes } from './ref';
 import { Tag } from './tag';
 
-export interface Provider<ProviderCommitType> {
+export interface Provider<ProviderCommitType, ProviderRefType> {
   baseUri: string;
   getPrevTag(): Promise<Tag | undefined>;
   getCommits(sinceTag?: Tag): Promise<Commit<ProviderCommitType>[]>;
   getTagCommitSha(tag: Tag): Promise<string>;
   getLatestCommitSha(): Promise<string>;
-  tags: ProviderRefs<RefTypes.TAGS>;
-  branches: ProviderRefs<RefTypes.HEADS>;
+  tags: ProviderRefs<RefTypes.TAGS, ProviderRefType>;
+  branches: ProviderRefs<RefTypes.HEADS, ProviderRefType>;
   releases: ProviderReleases;
 }
 
-export interface ProviderRefs<Type extends RefTypes> {
-  exists(ref: Ref<Type>): Promise<boolean>;
+export interface ProviderRefs<Type extends RefTypes, ProviderRefType> {
+  get(ref: Ref<Type>): Promise<ProviderRefType | undefined>;
   create(ref: Ref<Type>, sha: string): Promise<void>;
   update(ref: Ref<Type>, sha: string): Promise<void>;
   delete(ref: Ref<Type>): Promise<void>;

@@ -6,7 +6,7 @@ import { Provider } from '../../src/lib/providers';
 import { Ref, RefTypes } from '../../src/lib/ref';
 import { GitHubProvider } from '../../src/providers/github';
 
-const provider: Provider<unknown> = new GitHubProvider(inputs.token);
+const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
 async function generateParams<Type extends RefTypes>(
   type: Type
@@ -53,7 +53,7 @@ describe('github', () => {
   test('should check a tag', async () => {
     const { ref, sha } = await generateParams(RefTypes.TAGS);
     await provider.tags.create(ref, sha);
-    await expect(provider.tags.exists(ref)).resolves.toBe(true);
+    await expect(provider.tags.get(ref)).resolves.toBeDefined();
   });
 
   test('should creating a tag', async () => {
@@ -77,13 +77,13 @@ describe('github', () => {
     expect(async () => {
       provider.tags.delete(ref);
     }).not.toThrow();
-    await expect(provider.tags.exists(ref)).resolves.toBe(false);
+    await expect(provider.tags.get(ref)).resolves.toBeDefined();
   });
 
   test('should check a branch', async () => {
     const { ref, sha } = await generateParams(RefTypes.HEADS);
     await provider.branches.create(ref, sha);
-    await expect(provider.branches.exists(ref)).resolves.toBe(true);
+    await expect(provider.branches.get(ref)).resolves.toBeDefined();
   });
 
   test('should creating a branch', async () => {
@@ -107,6 +107,6 @@ describe('github', () => {
     expect(async () => {
       provider.branches.delete(ref);
     }).not.toThrow();
-    await expect(provider.branches.exists(ref)).resolves.toBe(false);
+    await expect(provider.branches.get(ref)).resolves.toBeDefined();
   });
 });

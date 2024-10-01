@@ -16,7 +16,7 @@ async function run() {
   displayVersion();
   const prevTag = prevVersion ? Tag.parseVersion(prevVersion) : undefined;
   const nextTag = nextVersion ? Tag.parseVersion(nextVersion) : undefined;
-  const provider: Provider<unknown> = new GitHubProvider(inputs.token);
+  const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
   if (status === 'success') {
     const latestCommitSha = await provider.getLatestCommitSha();
@@ -26,7 +26,8 @@ async function run() {
     }
     const tag = nextTag || prevTag;
     if (tag && !tag.version.preRelease) {
-      if (await provider.tags.exists(tag.majorRef)) {
+      const remoteTag = await provider.tags.get(tag.majorRef);
+      if (remoteTag !== undefined) {
         await provider.tags.update(tag.majorRef, latestCommitSha);
       } else {
         await provider.tags.create(tag.majorRef, latestCommitSha);

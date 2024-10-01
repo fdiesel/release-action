@@ -6,12 +6,15 @@ import { FullyQualifiedRef, Ref, RefTypes } from '../lib/ref';
 import { Tag } from '../lib/tag';
 
 type Octokit = ReturnType<typeof github.getOctokit>;
-type GitHubSourceCommit = Awaited<
+type GitHubCommitType = Awaited<
   ReturnType<Octokit['rest']['repos']['getCommit']>
 >['data'];
+type GitHubRefType = Awaited<
+  ReturnType<Octokit['rest']['git']['getRef']>
+>['data'];
 
-class GitHubCommit extends Commit<GitHubSourceCommit> {
-  constructor(commit: GitHubSourceCommit) {
+class GitHubCommit extends Commit<GitHubCommitType> {
+  constructor(commit: GitHubCommitType) {
     super(
       commit,
       commit.commit.message,
@@ -39,10 +42,10 @@ abstract class GitHubAction {
 
 export class GitHubProvider
   extends GitHubAction
-  implements Provider<GitHubSourceCommit>
+  implements Provider<GitHubCommitType, GitHubRefType>
 {
-  tags: ProviderRefs<RefTypes.TAGS>;
-  branches: ProviderRefs<RefTypes.HEADS>;
+  tags: ProviderRefs<RefTypes.TAGS, GitHubRefType>;
+  branches: ProviderRefs<RefTypes.HEADS, GitHubRefType>;
   releases: ProviderReleases;
   baseUri: string;
 
@@ -65,7 +68,7 @@ export class GitHubProvider
     return data.length > 0 ? Tag.parseTag(data[0].name) : undefined;
   }
 
-  async getCommits(sinceTag?: Tag): Promise<Commit<GitHubSourceCommit>[]> {
+  async getCommits(sinceTag?: Tag): Promise<Commit<GitHubCommitType>[]> {
     if (sinceTag) {
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
@@ -101,24 +104,24 @@ export class GitHubProvider
 
 class GitHubRefs<Type extends RefTypes>
   extends GitHubAction
-  implements ProviderRefs<Type>
+  implements ProviderRefs<Type, GitHubRefType>
 {
   constructor(octokit: Octokit) {
     super(octokit);
   }
 
-  async exists(ref: Ref<Type>): Promise<boolean> {
+  async get(ref: Ref<Type>): Promise<GitHubRefType | undefined> {
     try {
-      await this.octokit.rest.git.getRef({
+      const { data } = await this.octokit.rest.git.getRef({
         ...this.repo,
         ref: ref.fullyQualified
       });
-      return true;
+      return data;
     } catch (error: any) {
       if (error?.status === 404) {
-        return false;
+        return undefined;
       } else {
-        core.setFailed(error.message);
+        core.setFailed(error?.message);
         throw error;
       }
     }
