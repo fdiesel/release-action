@@ -92,6 +92,15 @@ describe('github', () => {
     }).not.toThrow();
   });
 
+  test('should create a branch for a previous commit', async () => {
+    const { ref } = await generateParams(RefTypes.HEADS);
+    const commits = await provider.getCommits();
+    const initialSha = commits[commits.length - 1].sha;
+    expect(async () => {
+      provider.branches.create(ref, initialSha);
+    }).not.toThrow();
+  });
+
   // test('should update a branch', async () => {
   //   const { ref, sha } = await generateParams(RefTypes.HEADS);
   //   await provider.branches.create(ref, sha);
