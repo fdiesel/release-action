@@ -44,8 +44,6 @@ function run() {
         var _a;
         (0, utils_1.displayVersion)();
         const provider = new github_1.GitHubProvider(inputs_1.inputs.token);
-        const { actor, permission } = yield provider.getPermission();
-        core.info(`Actor: ${actor}, Permission: ${permission}`);
         // get latest tag from branch
         const prevTag = yield provider.getPrevTag();
         // get commits from branch
@@ -55,6 +53,8 @@ function run() {
         const nextTag = nextVersion && new tag_1.Tag(nextVersion);
         if (nextTag) {
             const majorIsBumped = (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version) && (prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.major) < nextTag.version.major;
+            yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, 'stupid-latest'), newCommits[0].sha);
+            yield provider.branches.create(new ref_1.Ref(ref_1.RefTypes.HEADS, 'stupid-previous'), newCommits[1].sha);
             // create release branch if major version is bumped
             if (majorIsBumped) {
                 const prevTagCommitSha = yield provider.getTagCommitSha(prevTag);
