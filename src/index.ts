@@ -10,7 +10,7 @@ import { GitHubProvider } from './providers/github';
 async function run() {
   displayVersion();
   const provider: Provider<unknown, unknown, unknown> = new GitHubProvider(
-    inputs.token
+    core.getInput('token', { required: true })
   );
 
   core.debug(
