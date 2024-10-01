@@ -81,9 +81,9 @@ jobs:
       - name: Release
         id: release
         uses: ./
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          phase: prod
+        env:
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_PHASE: prod
 
       - name: Update Version in Files
         run: |
