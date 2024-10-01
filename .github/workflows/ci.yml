@@ -38,9 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure Git
-        run: |
-
       - name: Clean Build
         run: rm -rf node_modules dist
 
