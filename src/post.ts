@@ -16,7 +16,9 @@ async function run() {
   displayVersion();
   const prevTag = prevVersion ? Tag.parseVersion(prevVersion) : undefined;
   const nextTag = nextVersion ? Tag.parseVersion(nextVersion) : undefined;
-  const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
+  const provider: Provider<unknown, unknown, unknown> = new GitHubProvider(
+    inputs.token
+  );
 
   if (status === 'success') {
     const latestCommitSha = await provider.getLatestCommitSha();

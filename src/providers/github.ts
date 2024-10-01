@@ -12,6 +12,9 @@ type GitHubCommitType = Awaited<
 type GitHubRefType = Awaited<
   ReturnType<Octokit['rest']['git']['getRef']>
 >['data'];
+type GitHubPermissionsType = Awaited<
+  ReturnType<Octokit['rest']['apps']['getRepoInstallation']>
+>['data']['permissions'];
 
 class GitHubCommit extends Commit<GitHubCommitType> {
   constructor(commit: GitHubCommitType) {
@@ -42,7 +45,7 @@ abstract class GitHubAction {
 
 export class GitHubProvider
   extends GitHubAction
-  implements Provider<GitHubCommitType, GitHubRefType>
+  implements Provider<GitHubCommitType, GitHubRefType, GitHubPermissionsType>
 {
   tags: ProviderRefs<RefTypes.TAGS, GitHubRefType>;
   branches: ProviderRefs<RefTypes.HEADS, GitHubRefType>;
@@ -60,6 +63,13 @@ export class GitHubProvider
     core.debug(
       `Initialized GitHub Provider on branch: '${this.branchRef.name}'`
     );
+  }
+
+  async getPermissions(): Promise<GitHubPermissionsType> {
+    const { data } = await this.octokit.rest.apps.getRepoInstallation({
+      ...this.repo
+    });
+    return data.permissions;
   }
 
   async getPrevTag(): Promise<Tag | undefined> {
