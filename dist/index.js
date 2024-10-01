@@ -67,6 +67,9 @@ function run() {
             core.saveState('releaseId', releaseId);
             core.saveState('prevVersion', prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString());
             core.saveState('nextVersion', nextTag.version.toString());
+            core.debug(`releaseId: '${releaseId}'`);
+            core.debug(`previousVersion: '${prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString()}'`);
+            core.debug(`nextVersion: '${nextTag.version.toString()}'`);
             core.setOutput('tag', nextTag.toString());
             core.setOutput('majorTag', nextTag.toMajorString());
             core.setOutput('version', nextTag.version.toString());

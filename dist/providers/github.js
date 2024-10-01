@@ -60,35 +60,44 @@ class GitHubProvider extends GitHubAction {
         this.branches = new GitHubRefs(this.octokit);
         this.releases = new GitHubReleases(this.octokit);
         this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
-        core.info(`GitHub Provider (branch: ${this.branchRef.name})`);
+        core.debug(`Initialized GitHub Provider on branch: '${this.branchRef.name}'`);
     }
     getPrevTag() {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug('Getting previous tag');
             const { data } = yield this.octokit.rest.repos.listTags(Object.assign(Object.assign({}, this.repo), { per_page: 1 }));
+            core.debug(`Previous tag: '${data.length > 0 ? data[0].name : ''}'`);
             return data.length > 0 ? tag_1.Tag.parseTag(data[0].name) : undefined;
         });
     }
     getCommits(sinceTag) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`);
             if (sinceTag) {
                 const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.ref.fullyQualified, head: this.branchRef.name }));
+                core.debug(`Received commits: ${data.commits.length}`);
                 return data.commits.map((commit) => new GitHubCommit(commit));
             }
             else {
                 const { data } = yield this.octokit.rest.repos.listCommits(Object.assign(Object.assign({}, this.repo), { sha: this.branchRef.name }));
+                core.debug(`Received commits: ${data.length}`);
                 return data.map((commit) => new GitHubCommit(commit));
             }
         });
     }
     getTagCommitSha(tag) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Getting commit SHA for tag '${tag.toString()}'`);
             const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: tag.ref.shortened }));
+            core.debug(`Received commit SHA: '${data.object.sha}'`);
             return data.object.sha;
         });
     }
     getLatestCommitSha() {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug('Getting latest commit SHA');
             const { data } = yield this.octokit.rest.repos.getCommit(Object.assign(Object.assign({}, this.repo), { ref: this.branchRef.name }));
+            core.debug(`Received latest commit SHA: '${data.sha}'`);
             return data.sha;
         });
     }
@@ -100,12 +109,15 @@ class GitHubRefs extends GitHubAction {
     }
     get(ref) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Getting ref: '${ref}'`);
             try {
                 const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.fullyQualified }));
+                core.debug(`Received ref: '${data.ref}'`);
                 return data;
             }
             catch (error) {
                 if ((error === null || error === void 0 ? void 0 : error.status) === 404) {
+                    core.debug(`Received ref: 'undefined'`);
                     return undefined;
                 }
                 else {
@@ -117,18 +129,21 @@ class GitHubRefs extends GitHubAction {
     }
     create(ref, sha) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Creating ref: '${ref}'`);
             yield this.octokit.rest.git.createRef(Object.assign(Object.assign({}, this.repo), { ref: ref.fullyQualified, sha }));
             core.info(`Ref created: ${ref}`);
         });
     }
     update(ref, sha) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Updating ref: '${ref}'`);
             yield this.octokit.rest.git.updateRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened, sha }));
             core.info(`Ref updated: ${ref}`);
         });
     }
     delete(ref) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Deleting ref: '${ref}'`);
             yield this.octokit.rest.git.deleteRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened }));
             core.info(`Ref deleted: ${ref}`);
         });
@@ -140,6 +155,7 @@ class GitHubReleases extends GitHubAction {
     }
     draft(nextTag, body) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Drafting release: '${nextTag.toString()}'`);
             const { data } = yield this.octokit.rest.repos.createRelease(Object.assign(Object.assign({}, this.repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body, prerelease: !!nextTag.version.preRelease, draft: true }));
             core.info(`Release drafted: ${data.id.toString()}`);
             return data.id.toString();
@@ -147,12 +163,14 @@ class GitHubReleases extends GitHubAction {
     }
     publish(id, sha) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Publishing release: '${id}'`);
             yield this.octokit.rest.repos.updateRelease(Object.assign(Object.assign({}, this.repo), { release_id: parseInt(id), target_commitish: sha, draft: false }));
             core.info(`Release published: ${id}`);
         });
     }
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            core.debug(`Deleting release: '${id}'`);
             yield this.octokit.rest.repos.deleteRelease(Object.assign(Object.assign({}, this.repo), { release_id: parseInt(id) }));
             core.info(`Release deleted: ${id}`);
         });
