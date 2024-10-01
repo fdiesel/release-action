@@ -20,17 +20,18 @@ async function generateParams<Type extends RefTypes>(
 }
 
 describe('github', () => {
-  afterEach(() => {
+  afterEach(async () => {
     for (const ref of refStore) {
       switch (ref.type) {
         case RefTypes.HEADS:
-          provider.branches.delete(ref as Ref<RefTypes.HEADS>);
+          await provider.branches.delete(ref as Ref<RefTypes.HEADS>);
           break;
         case RefTypes.TAGS:
-          provider.tags.delete(ref as Ref<RefTypes.TAGS>);
+          await provider.tags.delete(ref as Ref<RefTypes.TAGS>);
           break;
       }
     }
+    refStore.length = 0;
   });
 
   test('should get latest commit sha', async () => {
