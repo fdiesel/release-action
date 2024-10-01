@@ -53,8 +53,10 @@ jobs:
         run: npm ci
 
       - name: Build
+        run: npm run build
+
+      - name: Push
         run: |
-          npm run build
           git add -f node_modules dist
           if [[ -n $(git status --porcelain) ]]; then      
             git config user.name "GitHub Action"
@@ -73,26 +75,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Release
+        id: release
+        uses: ./
         with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Test
-        run: npm test
-        env:
-          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_PHASE: prod
-
-      # - name: Release
-      #   id: release
-      #   uses: ./
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     phase: prod
+          token: ${{ secrets.GITHUB_TOKEN }}
+          phase: prod
 
       # - name: Update Version in Files
       #   run: |
