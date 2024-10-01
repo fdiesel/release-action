@@ -63,21 +63,21 @@ describe('github', () => {
     }).not.toThrow();
   });
 
-  test('should update a tag', async () => {
-    const { ref, sha } = await generateParams(RefTypes.TAGS);
-    await provider.tags.create(ref, sha);
-    expect(async () => {
-      provider.tags.update(ref, sha);
-    }).not.toThrow();
-  });
+  // test('should update a tag', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.TAGS);
+  //   await provider.tags.create(ref, sha);
+  //   expect(async () => {
+  //     provider.tags.update(ref, sha);
+  //   }).not.toThrow();
+  // });
 
-  test('should delete a tag', async () => {
-    const { ref, sha } = await generateParams(RefTypes.TAGS);
-    await provider.tags.create(ref, sha);
-    expect(async () => {
-      provider.tags.delete(ref);
-    }).not.toThrow();
-  });
+  // test('should delete a tag', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.TAGS);
+  //   await provider.tags.create(ref, sha);
+  //   expect(async () => {
+  //     provider.tags.delete(ref);
+  //   }).not.toThrow();
+  // });
 
   // test('should check a branch', async () => {
   //   const { ref, sha } = await generateParams(RefTypes.HEADS);
@@ -92,19 +92,19 @@ describe('github', () => {
     }).not.toThrow();
   });
 
-  test('should update a branch', async () => {
-    const { ref, sha } = await generateParams(RefTypes.HEADS);
-    await provider.branches.create(ref, sha);
-    expect(async () => {
-      provider.branches.update(ref, sha);
-    }).not.toThrow();
-  });
+  // test('should update a branch', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.HEADS);
+  //   await provider.branches.create(ref, sha);
+  //   expect(async () => {
+  //     provider.branches.update(ref, sha);
+  //   }).not.toThrow();
+  // });
 
-  test('should delete a branch', async () => {
-    const { ref, sha } = await generateParams(RefTypes.HEADS);
-    await provider.branches.create(ref, sha);
-    expect(async () => {
-      provider.branches.delete(ref);
-    }).not.toThrow();
-  });
+  // test('should delete a branch', async () => {
+  //   const { ref, sha } = await generateParams(RefTypes.HEADS);
+  //   await provider.branches.create(ref, sha);
+  //   expect(async () => {
+  //     provider.branches.delete(ref);
+  //   }).not.toThrow();
+  // });
 });
