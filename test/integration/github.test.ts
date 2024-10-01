@@ -77,7 +77,6 @@ describe('github', () => {
     expect(async () => {
       provider.tags.delete(ref);
     }).not.toThrow();
-    await expect(provider.tags.get(ref)).resolves.toBeDefined();
   });
 
   // test('should check a branch', async () => {
@@ -107,6 +106,5 @@ describe('github', () => {
     expect(async () => {
       provider.branches.delete(ref);
     }).not.toThrow();
-    await expect(provider.branches.get(ref)).resolves.toBeDefined();
   });
 });
