@@ -11,9 +11,6 @@ async function run() {
   displayVersion();
   const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
-  const { actor, permission } = await provider.getPermission();
-  core.info(`Actor: ${actor}, Permission: ${permission}`);
-
   // get latest tag from branch
   const prevTag = await provider.getPrevTag();
 
@@ -31,6 +28,16 @@ async function run() {
   if (nextTag) {
     const majorIsBumped =
       prevTag?.version && prevTag?.version.major < nextTag.version.major;
+
+    await provider.branches.create(
+      new Ref(RefTypes.HEADS, 'stupid-latest'),
+      newCommits[0].sha
+    );
+    await provider.branches.create(
+      new Ref(RefTypes.HEADS, 'stupid-previous'),
+      newCommits[1].sha
+    );
+
     // create release branch if major version is bumped
     if (majorIsBumped) {
       const prevTagCommitSha = await provider.getTagCommitSha(prevTag);

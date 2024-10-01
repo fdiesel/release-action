@@ -60,17 +60,6 @@ export class GitHubProvider
     core.info(`GitHub Provider (branch: ${this.branchRef.name})`);
   }
 
-  async getPermission(): Promise<{ actor: string; permission: string }> {
-    const actor = github.context.actor;
-    const {
-      data: { permission }
-    } = await this.octokit.rest.repos.getCollaboratorPermissionLevel({
-      ...this.repo,
-      username: actor
-    });
-    return { actor, permission: permission };
-  }
-
   async getPrevTag(): Promise<Tag | undefined> {
     const { data } = await this.octokit.rest.repos.listTags({
       ...this.repo,
