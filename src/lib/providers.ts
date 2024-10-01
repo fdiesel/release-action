@@ -2,13 +2,8 @@ import { Commit } from './commit';
 import { Ref, RefTypes } from './ref';
 import { Tag } from './tag';
 
-export interface Provider<
-  ProviderCommitType,
-  ProviderRefType,
-  ProviderPermissionsType
-> {
+export interface Provider<ProviderCommitType, ProviderRefType> {
   baseUri: string;
-  getPermissions(): Promise<ProviderPermissionsType>;
   getPrevTag(): Promise<Tag | undefined>;
   getCommits(sinceTag?: Tag): Promise<Commit<ProviderCommitType>[]>;
   getTagCommitSha(tag: Tag): Promise<string>;

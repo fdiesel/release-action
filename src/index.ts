@@ -9,12 +9,8 @@ import { GitHubProvider } from './providers/github';
 
 async function run() {
   displayVersion();
-  const provider: Provider<unknown, unknown, unknown> = new GitHubProvider(
+  const provider: Provider<unknown, unknown> = new GitHubProvider(
     core.getInput('token', { required: true })
-  );
-
-  core.debug(
-    `permissions: '${JSON.stringify(await provider.getPermissions())}'`
   );
 
   // get latest tag from branch

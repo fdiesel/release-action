@@ -45,7 +45,7 @@ abstract class GitHubAction {
 
 export class GitHubProvider
   extends GitHubAction
-  implements Provider<GitHubCommitType, GitHubRefType, GitHubPermissionsType>
+  implements Provider<GitHubCommitType, GitHubRefType>
 {
   tags: ProviderRefs<RefTypes.TAGS, GitHubRefType>;
   branches: ProviderRefs<RefTypes.HEADS, GitHubRefType>;
@@ -63,13 +63,6 @@ export class GitHubProvider
     core.debug(
       `Initialized GitHub Provider on branch: '${this.branchRef.name}'`
     );
-  }
-
-  async getPermissions(): Promise<GitHubPermissionsType> {
-    const { data } = await this.octokit.rest.apps.getRepoInstallation({
-      ...this.repo
-    });
-    return data.permissions;
   }
 
   async getPrevTag(): Promise<Tag | undefined> {

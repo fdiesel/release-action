@@ -6,9 +6,7 @@ import { Provider } from '../../src/lib/providers';
 import { Ref, RefTypes } from '../../src/lib/ref';
 import { GitHubProvider } from '../../src/providers/github';
 
-const provider: Provider<unknown, unknown, unknown> = new GitHubProvider(
-  inputs.token
-);
+const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
 async function generateParams<Type extends RefTypes>(
   type: Type
