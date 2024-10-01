@@ -79,7 +79,7 @@ jobs:
         id: release
         uses: ./
         with:
-          token: ${{ secrets.WORKFLOW_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           phase: prod
 
       # - name: Update Version in Files
