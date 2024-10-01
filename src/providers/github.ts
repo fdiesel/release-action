@@ -1,11 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { Commit } from '../lib/commit';
-import {
-  Provider,
-  ProviderRefActions,
-  ProviderReleaseActions
-} from '../lib/providers';
+import { Provider, ProviderRefs, ProviderReleases } from '../lib/providers';
 import { FullyQualifiedRef, Ref, RefTypes } from '../lib/ref';
 import { Tag } from '../lib/tag';
 
@@ -47,9 +43,9 @@ export class GitHubProvider
   extends GitHubAction
   implements Provider<GitHubSourceCommit>
 {
-  tags: ProviderRefActions<RefTypes.TAGS>;
-  branches: ProviderRefActions<RefTypes.HEADS>;
-  releases: ProviderReleaseActions;
+  tags: ProviderRefs<RefTypes.TAGS>;
+  branches: ProviderRefs<RefTypes.HEADS>;
+  releases: ProviderReleases;
   baseUri: string;
 
   constructor(token: string) {
@@ -105,7 +101,7 @@ export class GitHubProvider
 
 class GitHubRefs<Type extends RefTypes>
   extends GitHubAction
-  implements ProviderRefActions<Type>
+  implements ProviderRefs<Type>
 {
   constructor(octokit: Octokit) {
     super(octokit);
@@ -151,7 +147,7 @@ class GitHubRefs<Type extends RefTypes>
   }
 }
 
-class GitHubReleases extends GitHubAction implements ProviderReleaseActions {
+class GitHubReleases extends GitHubAction implements ProviderReleases {
   constructor(octokit: Octokit) {
     super(octokit);
   }

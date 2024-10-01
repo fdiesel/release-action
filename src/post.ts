@@ -14,35 +14,33 @@ const nextVersion = core.getState('nextVersion');
 
 async function run() {
   displayVersion();
-  if (!releaseId || !nextVersion) return;
-  const nextTag = Tag.parseVersion(nextVersion);
   const prevTag = prevVersion ? Tag.parseVersion(prevVersion) : undefined;
-
+  const nextTag = nextVersion ? Tag.parseVersion(nextVersion) : undefined;
   const provider: Provider<unknown> = new GitHubProvider(inputs.token);
 
   if (status === 'success') {
-    // get latest commit sha of branch
     const latestCommitSha = await provider.getLatestCommitSha();
-    // update tag and publish release with latest commit sha of branch
-    await provider.tags.update(nextTag.ref, latestCommitSha);
-    await provider.releases.publish(releaseId, latestCommitSha);
-    // create or update major tag if not pre-release
-    if (!nextTag.version.preRelease) {
-      if (await provider.tags.exists(nextTag.majorRef)) {
-        await provider.tags.update(nextTag.majorRef, latestCommitSha);
+    if (releaseId && nextTag) {
+      await provider.tags.update(nextTag.ref, latestCommitSha);
+      await provider.releases.publish(releaseId, latestCommitSha);
+    }
+    const tag = nextTag || prevTag;
+    if (tag && !tag.version.preRelease) {
+      if (await provider.tags.exists(tag.majorRef)) {
+        await provider.tags.update(tag.majorRef, latestCommitSha);
       } else {
-        await provider.tags.create(nextTag.majorRef, latestCommitSha);
+        await provider.tags.create(tag.majorRef, latestCommitSha);
       }
     }
   } else {
-    // rollback release and tag
-    await provider.releases.delete(releaseId);
-    await provider.tags.delete(nextTag.ref);
-    // rollback release branch if major version was bumped
-    if (prevTag && prevTag.version.major < nextTag.version.major) {
-      await provider.branches.delete(
-        new Ref(RefTypes.HEADS, `${nextTag.version.major}.x`)
-      );
+    if (nextTag) {
+      await provider.releases.delete(releaseId);
+      await provider.tags.delete(nextTag.ref);
+      if (prevTag && prevTag.version.major < nextTag.version.major) {
+        await provider.branches.delete(
+          new Ref(RefTypes.HEADS, `${nextTag.version.major}.x`)
+        );
+      }
     }
   }
 }
