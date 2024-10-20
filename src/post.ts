@@ -25,7 +25,7 @@ async function run() {
     const tag = nextTag || prevTag;
     if (tag && !tag.version.preRelease) {
       const remoteTag = await provider.tags.get(tag.majorRef);
-      if (remoteTag !== undefined) {
+      if (remoteTag) {
         await provider.tags.update(tag.majorRef, latestCommitSha);
       } else {
         await provider.tags.create(tag.majorRef, latestCommitSha);
