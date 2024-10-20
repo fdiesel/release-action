@@ -55,7 +55,7 @@ function run() {
             const tag = nextTag || prevTag;
             if (tag && !tag.version.preRelease) {
                 const remoteTag = yield provider.tags.get(tag.majorRef);
-                if (remoteTag !== undefined) {
+                if (remoteTag) {
                     yield provider.tags.update(tag.majorRef, latestCommitSha);
                 }
                 else {

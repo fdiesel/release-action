@@ -70,16 +70,21 @@ class GitHubProvider extends GitHubAction {
             return data.length > 0 ? tag_1.Tag.parseTag(data[0].name) : undefined;
         });
     }
+    /**
+     * Get commits since a given tag or from the beginning of the branch
+     * @param sinceTag only get commits after this tag
+     * @returns commits ordered from newest to oldest
+     */
     getCommits(sinceTag) {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug(`Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`);
             if (sinceTag) {
-                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { base: sinceTag.ref.fullyQualified, head: this.branchRef.name }));
+                const { data } = yield this.octokit.rest.repos.compareCommits(Object.assign(Object.assign({}, this.repo), { head: this.branchRef.name, base: sinceTag.ref.fullyQualified }));
                 core.debug(`Received commits: ${data.commits.length}`);
-                return data.commits.map((commit) => new GitHubCommit(commit));
+                return data.commits.reverse().map((commit) => new GitHubCommit(commit));
             }
             else {
-                const { data } = yield this.octokit.rest.repos.listCommits(Object.assign(Object.assign({}, this.repo), { sha: this.branchRef.name }));
+                const { data } = yield this.octokit.rest.repos.listCommits(Object.assign(Object.assign({}, this.repo), { head: this.branchRef.name, sha: this.branchRef.name }));
                 core.debug(`Received commits: ${data.length}`);
                 return data.map((commit) => new GitHubCommit(commit));
             }
@@ -111,13 +116,13 @@ class GitHubRefs extends GitHubAction {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug(`Getting ref: '${ref}'`);
             try {
-                const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.fullyQualified }));
+                const { data } = yield this.octokit.rest.git.getRef(Object.assign(Object.assign({}, this.repo), { ref: ref.shortened }));
                 core.debug(`Received ref: '${data.ref}'`);
                 return data;
             }
             catch (error) {
                 if ((error === null || error === void 0 ? void 0 : error.status) === 404) {
-                    core.debug(`Received ref: 'undefined'`);
+                    core.debug(`Received ref: undefined`);
                     return undefined;
                 }
                 else {
