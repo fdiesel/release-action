@@ -75,6 +75,11 @@ export class GitHubProvider
     return data.length > 0 ? Tag.parseTag(data[0].name) : undefined;
   }
 
+  /**
+   * Get commits since a given tag or from the beginning of the branch
+   * @param sinceTag only get commits after this tag
+   * @returns commits ordered from newest to oldest
+   */
   async getCommits(sinceTag?: Tag): Promise<Commit<GitHubCommitType>[]> {
     core.debug(
       `Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`
