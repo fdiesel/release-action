@@ -87,14 +87,15 @@ export class GitHubProvider
     if (sinceTag) {
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
-        base: sinceTag.ref.fullyQualified,
-        head: this.branchRef.name
+        head: this.branchRef.name,
+        base: sinceTag.ref.fullyQualified
       });
       core.debug(`Received commits: ${data.commits.length}`);
       return data.commits.reverse().map((commit) => new GitHubCommit(commit));
     } else {
       const { data } = await this.octokit.rest.repos.listCommits({
         ...this.repo,
+        head: this.branchRef.name,
         sha: this.branchRef.name
       });
       core.debug(`Received commits: ${data.length}`);
