@@ -91,7 +91,7 @@ export class GitHubProvider
         head: this.branchRef.name
       });
       core.debug(`Received commits: ${data.commits.length}`);
-      return data.commits.map((commit) => new GitHubCommit(commit));
+      return data.commits.reverse().map((commit) => new GitHubCommit(commit));
     } else {
       const { data } = await this.octokit.rest.repos.listCommits({
         ...this.repo,
@@ -142,7 +142,7 @@ class GitHubRefs<Type extends RefTypes>
       return data;
     } catch (error: any) {
       if (error?.status === 404) {
-        core.debug(`Received ref: 'undefined'`);
+        core.debug(`Received ref: undefined`);
         return undefined;
       } else {
         core.setFailed(error?.message);
