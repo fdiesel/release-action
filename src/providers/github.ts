@@ -131,7 +131,7 @@ class GitHubRefs<Type extends RefTypes>
     try {
       const { data } = await this.octokit.rest.git.getRef({
         ...this.repo,
-        ref: ref.fullyQualified
+        ref: ref.shortened
       });
       core.debug(`Received ref: '${data.ref}'`);
       return data;

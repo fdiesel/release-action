@@ -56,11 +56,22 @@ describe('github', () => {
   //   await expect(provider.tags.get(ref)).resolves.toBeDefined();
   // });
 
-  test('should creating a tag', async () => {
+  test('should create a tag', async () => {
     const { ref, sha } = await generateParams(RefTypes.TAGS);
     expect(async () => {
       provider.tags.create(ref, sha);
     }).not.toThrow();
+  });
+
+  test('should get an existing tag', async () => {
+    const { ref, sha } = await generateParams(RefTypes.TAGS);
+    await provider.tags.create(ref, sha);
+    await expect(provider.tags.get(ref)).resolves.toBeDefined();
+  });
+
+  test('should not get a non-existing tag', async () => {
+    const ref = new Ref(RefTypes.TAGS, `test-${randomUUID()}`);
+    await expect(provider.tags.get(ref)).resolves.toBeUndefined();
   });
 
   // test('should update a tag', async () => {
