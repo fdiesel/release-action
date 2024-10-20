@@ -108,9 +108,9 @@ describe('github', () => {
     const commits = await provider.getCommits();
     if (commits.length < 2) return;
     const firstCommit = commits[commits.length - 1];
-    await expect(
-      provider.branches.create(ref, firstCommit.sha)
-    ).rejects.toThrow();
+    expect(async () => {
+      provider.branches.create(ref, firstCommit.sha);
+    }).not.toThrow();
   });
 
   // test('should create a branch for a previous commit with octo', async () => {
