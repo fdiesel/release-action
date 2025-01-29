@@ -41,7 +41,6 @@ const utils_1 = require("./lib/utils");
 const github_1 = require("./providers/github");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         const provider = new github_1.GitHubProvider(core.getInput("token", { required: true }));
         // get latest tag from branch
         const prevTag = yield provider.getPrevTag();
@@ -74,7 +73,9 @@ function run() {
             core.setOutput("version", nextTag.version.toString());
             core.setOutput("majorVersion", nextTag.version.major.toString());
             core.setOutput("created", true);
-            core.setOutput("pre-release", (_a = nextTag.version.prerelease) === null || _a === void 0 ? void 0 : _a.toString());
+            core.setOutput("pre-release", nextTag.version.prerelease.length > 0
+                ? nextTag.version.prerelease[0]
+                : "undefined");
         }
         else {
             core.setOutput("created", false);
