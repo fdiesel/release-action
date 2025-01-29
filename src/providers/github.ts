@@ -191,7 +191,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
       tag_name: nextTag.toString(),
       name: nextTag.toString(),
       body,
-      prerelease: !!nextTag.version.preRelease,
+      prerelease: !!nextTag.version.prerelease,
       draft: true
     });
     core.info(`Release drafted: ${data.id.toString()}`);
