@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.determineNextVersion = determineNextVersion;
+const semver_1 = require("semver");
 const commit_1 = require("./commit");
-const version_1 = require("./version");
+const phase_1 = require("./phase");
 function determineNextVersion(prevVersion, commits, phase) {
     let nextVersion = null;
     const { hasBreakingChanges, type, preReleaseName } = commits.reduce((acc, commit) => {
@@ -33,29 +34,43 @@ function determineNextVersion(prevVersion, commits, phase) {
     }, {
         hasBreakingChanges: false,
         type: undefined,
-        preReleaseName: undefined
+        preReleaseName: undefined,
     });
-    if (!prevVersion || (prevVersion.major === 0 && phase === version_1.Phase.Prod)) {
-        nextVersion = version_1.SemVer.init(phase);
-        if (preReleaseName) {
-            nextVersion = version_1.SemVer.bump(nextVersion, preReleaseName);
+    if (!prevVersion || (prevVersion.major === 0 && phase === phase_1.Phase.Prod)) {
+        switch (phase) {
+            case phase_1.Phase.Prod:
+                if (preReleaseName) {
+                    return new semver_1.SemVer("1.0.0-" + preReleaseName + ".0");
+                }
+                else {
+                    return new semver_1.SemVer("1.0.0");
+                }
+            case phase_1.Phase.Dev:
+                if (preReleaseName) {
+                    return new semver_1.SemVer("0.1.0-" + preReleaseName + ".0");
+                }
+                else {
+                    return new semver_1.SemVer("0.1.0");
+                }
         }
-        return nextVersion;
     }
-    if (hasBreakingChanges && phase === version_1.Phase.Prod) {
-        nextVersion = version_1.SemVer.bump(prevVersion, version_1.BumpTarget.Major);
+    if (hasBreakingChanges && phase === phase_1.Phase.Prod) {
+        nextVersion = prevVersion.inc("major");
     }
-    else if (hasBreakingChanges && phase === version_1.Phase.Dev) {
-        nextVersion = version_1.SemVer.bump(prevVersion, version_1.BumpTarget.Minor);
+    else if (hasBreakingChanges && phase === phase_1.Phase.Dev) {
+        nextVersion = prevVersion.inc("minor");
     }
     else if (type === commit_1.ConventionalCommitType.FEAT) {
-        nextVersion = version_1.SemVer.bump(prevVersion, version_1.BumpTarget.Minor);
+        nextVersion = prevVersion.inc("minor");
     }
     else if (type === commit_1.ConventionalCommitType.FIX && !preReleaseName) {
-        nextVersion = version_1.SemVer.bump(prevVersion, version_1.BumpTarget.Patch);
+        nextVersion = prevVersion.inc("patch");
     }
-    if (preReleaseName) {
-        nextVersion = version_1.SemVer.bump(nextVersion !== null && nextVersion !== void 0 ? nextVersion : prevVersion, preReleaseName);
+    if (preReleaseName && nextVersion) {
+        nextVersion = nextVersion.inc("prerelease", preReleaseName);
+    }
+    else if (preReleaseName && prevVersion) {
+        nextVersion = prevVersion.inc("prerelease", preReleaseName);
     }
     return nextVersion;
 }

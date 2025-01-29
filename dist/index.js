@@ -42,7 +42,7 @@ const github_1 = require("./providers/github");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
-        const provider = new github_1.GitHubProvider(core.getInput('token', { required: true }));
+        const provider = new github_1.GitHubProvider(core.getInput("token", { required: true }));
         // get latest tag from branch
         const prevTag = yield provider.getPrevTag();
         // get commits from branch
@@ -63,22 +63,22 @@ function run() {
                 ? new release_1.ReleaseProdBody(provider.baseUri, prevTag, nextTag, yield provider.getCommits())
                 : new release_1.ReleaseDevBody(provider.baseUri, prevTag, nextTag, newCommits);
             const releaseId = yield provider.releases.draft(nextTag, releaseBody.toString());
-            core.saveState('releaseId', releaseId);
-            core.saveState('prevVersion', prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString());
-            core.saveState('nextVersion', nextTag.version.toString());
+            core.saveState("releaseId", releaseId);
+            core.saveState("prevVersion", prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString());
+            core.saveState("nextVersion", nextTag.version.toString());
             core.debug(`releaseId: '${releaseId}'`);
             core.debug(`previousVersion: '${prevTag === null || prevTag === void 0 ? void 0 : prevTag.version.toString()}'`);
             core.debug(`nextVersion: '${nextTag.version.toString()}'`);
-            core.setOutput('tag', nextTag.toString());
-            core.setOutput('majorTag', nextTag.toMajorString());
-            core.setOutput('version', nextTag.version.toString());
-            core.setOutput('majorVersion', nextTag.version.major.toString());
-            core.setOutput('created', true);
-            core.setOutput('pre-release', (_a = nextTag.version.preRelease) === null || _a === void 0 ? void 0 : _a.toString());
+            core.setOutput("tag", nextTag.toString());
+            core.setOutput("majorTag", nextTag.toMajorString());
+            core.setOutput("version", nextTag.version.toString());
+            core.setOutput("majorVersion", nextTag.version.major.toString());
+            core.setOutput("created", true);
+            core.setOutput("pre-release", (_a = nextTag.version.prerelease) === null || _a === void 0 ? void 0 : _a.toString());
         }
         else {
-            core.setOutput('created', false);
-            core.setOutput('pre-release', undefined);
+            core.setOutput("created", false);
+            core.setOutput("pre-release", undefined);
         }
     });
 }

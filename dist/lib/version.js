@@ -1,12 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SemVer = exports.SemVerPreRelease = exports.parseBumpTarget = exports.BumpTarget = exports.parseSemVerPreReleaseName = exports.SemVerPreReleaseName = exports.Phase = void 0;
+exports.SemVer = exports.SemVerPreRelease = exports.parseBumpTarget = exports.BumpTarget = exports.parseSemVerPreReleaseName = exports.SemVerPreReleaseName = void 0;
 const parser_1 = require("./parser");
-var Phase;
-(function (Phase) {
-    Phase["Dev"] = "dev";
-    Phase["Prod"] = "prod";
-})(Phase || (exports.Phase = Phase = {}));
+const phase_1 = require("./phase");
 var SemVerPreReleaseName;
 (function (SemVerPreReleaseName) {
     SemVerPreReleaseName["Alpha"] = "alpha";
@@ -30,7 +26,7 @@ class SemVerPreRelease {
         this.version = version;
     }
     toString() {
-        return `${this.name}${this.version > 0 ? `.${this.version}` : ''}`;
+        return `${this.name}${this.version > 0 ? `.${this.version}` : ""}`;
     }
     static bump(preRelease, name) {
         if (preRelease.name !== name) {
@@ -51,13 +47,13 @@ class SemVer {
     }
     toString() {
         return (`${this.major}.${this.minor}.${this.patch}` +
-            (this.preRelease ? `-${this.preRelease.toString()}` : ''));
+            (this.preRelease ? `-${this.preRelease.toString()}` : ""));
     }
     static init(phase) {
         switch (phase) {
-            case Phase.Prod:
+            case phase_1.Phase.Prod:
                 return new SemVer(1, 0, 0);
-            case Phase.Dev:
+            case phase_1.Phase.Dev:
                 return new SemVer(0, 1, 0);
         }
     }
@@ -93,4 +89,4 @@ class SemVer {
     }
 }
 exports.SemVer = SemVer;
-SemVer.matchSemVer = (0, parser_1.matchWithRegexFactory)(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(0|[1-9]\d*))?)?$/, 'major', 'minor', 'patch', 'preReleaseName', 'preReleaseVersion');
+SemVer.matchSemVer = (0, parser_1.matchWithRegexFactory)(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(0|[1-9]\d*))?)?$/, "major", "minor", "patch", "preReleaseName", "preReleaseVersion");

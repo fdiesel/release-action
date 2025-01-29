@@ -37,23 +37,23 @@ const inputs_1 = require("./inputs");
 const ref_1 = require("./lib/ref");
 const tag_1 = require("./lib/tag");
 const github_1 = require("./providers/github");
-const status = core.getInput('_job_status');
-const releaseId = core.getState('releaseId');
-const prevVersion = core.getState('prevVersion');
-const nextVersion = core.getState('nextVersion');
+const status = core.getInput("_job_status");
+const releaseId = core.getState("releaseId");
+const prevVersion = core.getState("prevVersion");
+const nextVersion = core.getState("nextVersion");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const prevTag = prevVersion ? tag_1.Tag.parseVersion(prevVersion) : undefined;
         const nextTag = nextVersion ? tag_1.Tag.parseVersion(nextVersion) : undefined;
         const provider = new github_1.GitHubProvider(inputs_1.inputs.token);
-        if (status === 'success') {
+        if (status === "success") {
             const latestCommitSha = yield provider.getLatestCommitSha();
             if (releaseId && nextTag) {
                 yield provider.tags.update(nextTag.ref, latestCommitSha);
                 yield provider.releases.publish(releaseId, latestCommitSha);
             }
             const tag = nextTag || prevTag;
-            if (tag && !tag.version.preRelease) {
+            if (tag && !tag.version.prerelease) {
                 const remoteTag = yield provider.tags.get(tag.majorRef);
                 if (remoteTag) {
                     yield provider.tags.update(tag.majorRef, latestCommitSha);
