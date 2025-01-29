@@ -129,5 +129,11 @@ describe("utils", () => {
       );
       expect(nextVersion).toBeNull();
     });
+    test("should return pre release name as first in array", () => {
+      const version = new SemVer("1.0.0-rc.0");
+      expect(version.prerelease.length).toBe(2);
+      expect(version.prerelease[0]).toBe("rc");
+      expect(version.prerelease[1]).toBe(0);
+    });
   });
 });

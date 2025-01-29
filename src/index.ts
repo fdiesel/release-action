@@ -66,7 +66,12 @@ async function run() {
     core.setOutput("version", nextTag.version.toString());
     core.setOutput("majorVersion", nextTag.version.major.toString());
     core.setOutput("created", true);
-    core.setOutput("pre-release", nextTag.version.prerelease?.toString());
+    core.setOutput(
+      "pre-release",
+      nextTag.version.prerelease.length > 0
+        ? nextTag.version.prerelease[0]
+        : "undefined"
+    );
   } else {
     core.setOutput("created", false);
     core.setOutput("pre-release", undefined);

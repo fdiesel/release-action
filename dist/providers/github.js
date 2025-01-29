@@ -161,7 +161,7 @@ class GitHubReleases extends GitHubAction {
     draft(nextTag, body) {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug(`Drafting release: '${nextTag.toString()}'`);
-            const { data } = yield this.octokit.rest.repos.createRelease(Object.assign(Object.assign({}, this.repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body, prerelease: !!nextTag.version.prerelease, draft: true }));
+            const { data } = yield this.octokit.rest.repos.createRelease(Object.assign(Object.assign({}, this.repo), { tag_name: nextTag.toString(), name: nextTag.toString(), body, prerelease: nextTag.version.prerelease.length > 0, draft: true }));
             core.info(`Release drafted: ${data.id.toString()}`);
             return data.id.toString();
         });

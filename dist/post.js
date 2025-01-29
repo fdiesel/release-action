@@ -53,7 +53,7 @@ function run() {
                 yield provider.releases.publish(releaseId, latestCommitSha);
             }
             const tag = nextTag || prevTag;
-            if (tag && !tag.version.prerelease) {
+            if (tag && tag.version.prerelease.length === 0) {
                 const remoteTag = yield provider.tags.get(tag.majorRef);
                 if (remoteTag) {
                     yield provider.tags.update(tag.majorRef, latestCommitSha);

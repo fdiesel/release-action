@@ -23,7 +23,7 @@ async function run() {
       await provider.releases.publish(releaseId, latestCommitSha);
     }
     const tag = nextTag || prevTag;
-    if (tag && !tag.version.prerelease) {
+    if (tag && tag.version.prerelease.length === 0) {
       const remoteTag = await provider.tags.get(tag.majorRef);
       if (remoteTag) {
         await provider.tags.update(tag.majorRef, latestCommitSha);
