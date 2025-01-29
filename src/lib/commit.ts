@@ -1,21 +1,20 @@
 import {
   enumParserFactory,
   matchWithRegexFactory,
-  testWithRegexFactory
-} from './parser';
-import { ProviderSource } from './providers';
-import { parseSemVerPreReleaseName, SemVerPreReleaseName } from './version';
+  testWithRegexFactory,
+} from "./parser";
+import { ProviderSource } from "./providers";
 
 export enum ConventionalCommitType {
-  BREAKING_CHANGE = 'BREAKING CHANGE',
-  FEAT = 'feat',
-  FIX = 'fix'
+  BREAKING_CHANGE = "BREAKING CHANGE",
+  FEAT = "feat",
+  FIX = "fix",
 }
 
 export const parseConventionalCommitType = enumParserFactory(
   ConventionalCommitType,
   (type) => type.toLowerCase(),
-  (value) => value.toLowerCase().replace('-', ' ')
+  (value) => value.toLowerCase().replace("-", " ")
 );
 
 export class ConventionalCommitMessage {
@@ -30,7 +29,7 @@ export class ConventionalCommitMessage {
     type,
     isBreakingChange,
     header,
-    scope
+    scope,
   }: {
     message: string;
     type: ConventionalCommitType;
@@ -50,15 +49,15 @@ export class ConventionalCommitMessage {
       String.raw`^(${[
         ...Object.values(ConventionalCommitType),
         ...Object.values(ConventionalCommitType)
-          .filter((type) => type.includes(' '))
-          .map((type) => type.replace(' ', '-'))
-      ].join('|')})(?:\((.+)\))?(?:(\!))?\: (.+)`,
-      'i'
+          .filter((type) => type.includes(" "))
+          .map((type) => type.replace(" ", "-")),
+      ].join("|")})(?:\((.+)\))?(?:(\!))?\: (.+)`,
+      "i"
     ),
-    'type',
-    'scope',
-    'exclamation',
-    'header'
+    "type",
+    "scope",
+    "exclamation",
+    "header"
   );
 
   private static includesBreakingChange = testWithRegexFactory(
@@ -68,7 +67,7 @@ export class ConventionalCommitMessage {
   public static parse(message: string): ConventionalCommitMessage {
     const { type, scope, exclamation, header } = this.decomposeMessage(message);
     const isBreakingChange =
-      exclamation === '!' || this.includesBreakingChange(message);
+      exclamation === "!" || this.includesBreakingChange(message);
     if (!type || !header) {
       throw new Error(`Invalid conventional commit message: ${message}`);
     }
@@ -77,7 +76,7 @@ export class ConventionalCommitMessage {
       type: parseConventionalCommitType(type),
       isBreakingChange: isBreakingChange,
       header,
-      scope
+      scope,
     });
   }
 
@@ -90,7 +89,7 @@ export abstract class Commit<
   SourceCommitType
 > extends ProviderSource<SourceCommitType> {
   public readonly message?: ConventionalCommitMessage;
-  public readonly preReleaseName?: SemVerPreReleaseName;
+  public readonly preReleaseName?: string;
   public readonly sha: string;
   public readonly uri: string;
   public readonly id: string;
@@ -107,9 +106,7 @@ export abstract class Commit<
     this.uri = uri;
     this.id = id;
     const { preReleaseName } = Commit.findPreReleaseName(plainMessage);
-    this.preReleaseName = preReleaseName
-      ? parseSemVerPreReleaseName(preReleaseName)
-      : undefined;
+    this.preReleaseName = preReleaseName;
     try {
       this.message = ConventionalCommitMessage.parse(plainMessage);
     } catch (_: unknown) {
@@ -119,6 +116,6 @@ export abstract class Commit<
 
   private static findPreReleaseName = matchWithRegexFactory(
     /\((alpha|beta|rc)\)/i,
-    'preReleaseName'
+    "preReleaseName"
   );
 }
