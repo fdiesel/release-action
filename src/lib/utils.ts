@@ -1,5 +1,6 @@
-import { Commit, ConventionalCommitType } from './commit';
-import { BumpTarget, Phase, SemVer, SemVerPreReleaseName } from './version';
+import { SemVer } from "semver";
+import { Commit, ConventionalCommitType } from "./commit";
+import { Phase } from "./phase";
 
 export function determineNextVersion<SourceCommitType>(
   prevVersion: SemVer | undefined,
@@ -44,34 +45,45 @@ export function determineNextVersion<SourceCommitType>(
     {
       hasBreakingChanges: false,
       type: undefined,
-      preReleaseName: undefined
+      preReleaseName: undefined,
     } as {
       hasBreakingChanges: boolean;
       type: ConventionalCommitType | undefined;
-      preReleaseName: SemVerPreReleaseName | undefined;
+      preReleaseName: string | undefined;
     }
   );
 
   if (!prevVersion || (prevVersion.major === 0 && phase === Phase.Prod)) {
-    nextVersion = SemVer.init(phase);
-    if (preReleaseName) {
-      nextVersion = SemVer.bump(nextVersion, preReleaseName);
+    switch (phase) {
+      case Phase.Prod:
+        if (preReleaseName) {
+          return new SemVer("1.0.0-" + preReleaseName + ".0");
+        } else {
+          return new SemVer("1.0.0");
+        }
+      case Phase.Dev:
+        if (preReleaseName) {
+          return new SemVer("0.1.0-" + preReleaseName + ".0");
+        } else {
+          return new SemVer("0.1.0");
+        }
     }
-    return nextVersion;
   }
 
   if (hasBreakingChanges && phase === Phase.Prod) {
-    nextVersion = SemVer.bump(prevVersion, BumpTarget.Major);
+    nextVersion = prevVersion.inc("major");
   } else if (hasBreakingChanges && phase === Phase.Dev) {
-    nextVersion = SemVer.bump(prevVersion, BumpTarget.Minor);
+    nextVersion = prevVersion.inc("minor");
   } else if (type === ConventionalCommitType.FEAT) {
-    nextVersion = SemVer.bump(prevVersion, BumpTarget.Minor);
+    nextVersion = prevVersion.inc("minor");
   } else if (type === ConventionalCommitType.FIX && !preReleaseName) {
-    nextVersion = SemVer.bump(prevVersion, BumpTarget.Patch);
+    nextVersion = prevVersion.inc("patch");
   }
 
-  if (preReleaseName) {
-    nextVersion = SemVer.bump(nextVersion ?? prevVersion, preReleaseName);
+  if (preReleaseName && nextVersion) {
+    nextVersion = nextVersion.inc("prerelease", preReleaseName);
+  } else if (preReleaseName && prevVersion) {
+    nextVersion = prevVersion.inc("prerelease", preReleaseName);
   }
 
   return nextVersion;

@@ -1,14 +1,10 @@
-import { enumParserFactory, matchWithRegexFactory } from './parser';
-
-export enum Phase {
-  Dev = 'dev',
-  Prod = 'prod'
-}
+import { enumParserFactory, matchWithRegexFactory } from "./parser";
+import { Phase } from "./phase";
 
 export enum SemVerPreReleaseName {
-  Alpha = 'alpha',
-  Beta = 'beta',
-  Rc = 'rc'
+  Alpha = "alpha",
+  Beta = "beta",
+  Rc = "rc",
 }
 
 export const parseSemVerPreReleaseName = enumParserFactory(
@@ -18,12 +14,12 @@ export const parseSemVerPreReleaseName = enumParserFactory(
 );
 
 export enum BumpTarget {
-  Major = 'major',
-  Minor = 'minor',
-  Patch = 'patch',
-  Alpha = 'alpha',
-  Beta = 'beta',
-  Rc = 'rc'
+  Major = "major",
+  Minor = "minor",
+  Patch = "patch",
+  Alpha = "alpha",
+  Beta = "beta",
+  Rc = "rc",
 }
 
 export const parseBumpTarget = enumParserFactory(
@@ -42,7 +38,7 @@ export class SemVerPreRelease {
   }
 
   public toString(): string {
-    return `${this.name}${this.version > 0 ? `.${this.version}` : ''}`;
+    return `${this.name}${this.version > 0 ? `.${this.version}` : ""}`;
   }
 
   public static bump(
@@ -78,7 +74,7 @@ export class SemVer {
   toString(): string {
     return (
       `${this.major}.${this.minor}.${this.patch}` +
-      (this.preRelease ? `-${this.preRelease.toString()}` : '')
+      (this.preRelease ? `-${this.preRelease.toString()}` : "")
     );
   }
 
@@ -93,11 +89,11 @@ export class SemVer {
 
   private static matchSemVer = matchWithRegexFactory(
     /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(0|[1-9]\d*))?)?$/,
-    'major',
-    'minor',
-    'patch',
-    'preReleaseName',
-    'preReleaseVersion'
+    "major",
+    "minor",
+    "patch",
+    "preReleaseName",
+    "preReleaseVersion"
   );
 
   public static parse(version: string): SemVer {

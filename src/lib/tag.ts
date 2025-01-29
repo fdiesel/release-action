@@ -1,8 +1,8 @@
-import { Ref, RefTypes } from './ref';
-import { SemVer } from './version';
+import semver, { SemVer } from "semver";
+import { Ref, RefTypes } from "./ref";
 
 export class Tag {
-  public static readonly PREFIX: string = 'v';
+  public static readonly PREFIX: string = "v";
   public readonly version: SemVer;
   public readonly ref: Ref<RefTypes.TAGS>;
   public readonly majorRef: Ref<RefTypes.TAGS>;
@@ -14,12 +14,14 @@ export class Tag {
   }
 
   public static parseTag(tag: string): Tag {
-    const version = SemVer.parse(tag.substring(Tag.PREFIX.length));
-    return new Tag(version);
+    const versionString = tag.substring(Tag.PREFIX.length);
+    return Tag.parseVersion(versionString);
   }
 
-  public static parseVersion(version: string): Tag {
-    return new Tag(SemVer.parse(version));
+  public static parseVersion(versionString: string): Tag {
+    const version = semver.parse(versionString);
+    if (!version) throw new Error(`Invalid version: ${versionString}`);
+    return new Tag(version);
   }
 
   public toMajorString(): string {
