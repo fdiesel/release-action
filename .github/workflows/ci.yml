@@ -115,7 +115,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: node_modules dist --force
-          message: 'chore: build'
+          message: "chore: build"
 
   release:
     needs: deploy
@@ -144,10 +144,12 @@ jobs:
 
       - name: Bump Package Version
         if: steps.release.outputs.created == 'true'
-        run: npm version ${{ steps.release.outputs.version }} --allow-same-version --no-git-tag-version
+        run: |
+          git pull
+          npm version ${{ steps.release.outputs.version }} --allow-same-version --no-git-tag-version
 
       - name: Commit
         if: steps.release.outputs.created == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'chore: bump package version'
+          message: "chore: bump package version"
