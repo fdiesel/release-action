@@ -134,9 +134,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           phase: prod
-          discord_webhooks: ${{ secrets.DISCORD_WEBHOOK }}
-          discord_release_app_url: https://github.com
-          discord_release_color: 00ff00
 
       - name: Setup Node.js
         if: steps.release.outputs.created == 'true'
