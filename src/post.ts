@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import { inputs } from './inputs';
+import { releaseToDiscord } from './lib/discord';
 import { Provider } from './lib/providers';
 import { Ref, RefTypes } from './lib/ref';
 import { Tag } from './lib/tag';
@@ -10,6 +11,7 @@ const status = core.getInput('_job_status') as 'success' | 'failure';
 const releaseId = core.getState('releaseId');
 const prevVersion = core.getState('prevVersion');
 const nextVersion = core.getState('nextVersion');
+const releaseNotes = core.getState('releaseNotes');
 
 async function run() {
   const prevTag = prevVersion ? Tag.parseVersion(prevVersion) : undefined;
@@ -21,6 +23,7 @@ async function run() {
     if (releaseId && nextTag) {
       await provider.tags.update(nextTag.ref, latestCommitSha);
       await provider.releases.publish(releaseId, latestCommitSha);
+      await releaseToDiscord(nextTag.version.toString(), releaseNotes);
     }
     const tag = nextTag || prevTag;
     if (tag && tag.version.prerelease.length === 0) {
