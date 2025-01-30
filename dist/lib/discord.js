@@ -73,7 +73,7 @@ function releaseToDiscord(tag, version, content) {
                 avatarURL,
                 embeds: [
                     {
-                        description: `**[\[${username}/${repo}\] New release published: ${tag}](${releaseUrl})**\n` +
+                        description: `### [\[${appName !== null && appName !== void 0 ? appName : `${username}/${repo}`}\] New release published: ${tag}](${releaseUrl})\n` +
                             content,
                         color: color ? parseInt(color.replace('#', ''), 16) : 0x1e1f22,
                         fields,
