@@ -73,7 +73,7 @@ async function run() {
         : 'undefined',
     );
   } else {
-    core.setOutput('created', false);
+    core.setOutput("created", false);
     core.setOutput('pre-release', undefined);
   }
 }

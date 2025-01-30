@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { RequestError } from '@octokit/request-error';
 import { Commit } from '../lib/commit';
 import { Provider, ProviderRefs, ProviderReleases } from '../lib/providers';
 import { FullyQualifiedRef, Ref, RefTypes } from '../lib/ref';
@@ -12,9 +13,6 @@ type GitHubCommitType = Awaited<
 type GitHubRefType = Awaited<
   ReturnType<Octokit['rest']['git']['getRef']>
 >['data'];
-type GitHubPermissionsType = Awaited<
-  ReturnType<Octokit['rest']['apps']['getRepoInstallation']>
->['data']['permissions'];
 
 class GitHubCommit extends Commit<GitHubCommitType> {
   constructor(commit: GitHubCommitType) {
@@ -141,12 +139,13 @@ class GitHubRefs<Type extends RefTypes>
       });
       core.debug(`Received ref: '${data.ref}'`);
       return data;
-    } catch (error: any) {
-      if (error?.status === 404) {
+    } catch (err: unknown) {
+      const error = err as RequestError;
+      if (error.status === 404) {
         core.debug(`Received ref: undefined`);
         return undefined;
       } else {
-        core.setFailed(error?.message);
+        core.setFailed(error.message);
         throw error;
       }
     }

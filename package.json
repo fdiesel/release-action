@@ -8,7 +8,7 @@
     "build": "tsc",
     "test:units": "jest --rootDir test/units",
     "test": "jest",
-    "lint": "eslint src/**/*.ts test/**/*.ts --fix",
+    "lint": "eslint src/**/*.ts test/**/*.ts",
     "format": "prettier --write .",
     "prepare": "husky"
   },

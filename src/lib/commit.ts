@@ -109,7 +109,8 @@ export abstract class Commit<
     this.preReleaseName = preReleaseName;
     try {
       this.message = ConventionalCommitMessage.parse(plainMessage);
-    } catch (_: unknown) {
+    } catch (_error: unknown) {
+      void _error;
       this.message = undefined;
     }
   }
