@@ -36,12 +36,14 @@ exports.releaseToDiscord = releaseToDiscord;
 const core_1 = require("@actions/core");
 const github = __importStar(require("@actions/github"));
 const discord_js_1 = require("discord.js");
-function releaseToDiscord(tag, content) {
+function releaseToDiscord(tag, version, content) {
     return __awaiter(this, void 0, void 0, function* () {
         const webhooks = (0, core_1.getInput)('discord_webhooks')
             .split(',')
-            .map((webhook) => webhook.trim());
-        const appUrl = (0, core_1.getInput)('discord_release_app_url') || undefined;
+            .map((webhook) => webhook.trim())
+            .filter((webhook) => webhook.length > 0);
+        const appName = (0, core_1.getInput)('app_name') || undefined;
+        const appUrl = (0, core_1.getInput)('app_url') || undefined;
         const color = (0, core_1.getInput)('discord_release_color') || undefined;
         const username = github.context.actor;
         const avatarURL = 'https://avatars.githubusercontent.com/' + username;
@@ -54,20 +56,15 @@ function releaseToDiscord(tag, content) {
             });
             const fields = [
                 {
-                    name: 'repo',
-                    value: `[${repo}](${repoUrl})`,
-                    inline: true,
-                },
-                {
-                    name: 'tag',
-                    value: `[${tag}](${releaseUrl})`,
+                    name: 'version',
+                    value: version,
                     inline: true,
                 },
             ];
-            if (appUrl) {
-                fields.push({
+            if (appName || appUrl) {
+                fields.unshift({
                     name: 'app',
-                    value: appUrl,
+                    value: appUrl ? `[${appName || appUrl}](${appUrl})` : appName,
                     inline: true,
                 });
             }
@@ -76,9 +73,9 @@ function releaseToDiscord(tag, content) {
                 avatarURL,
                 embeds: [
                     {
-                        title: 'Release',
+                        title: `[\[${username}/${repo}\] New release published: ${tag}](${releaseUrl})`,
                         description: content,
-                        color: color ? parseInt(color.replace('#', ''), 16) : undefined,
+                        color: color ? parseInt(color.replace('#', ''), 16) : 0x1e1f22,
                         fields,
                     },
                 ],
