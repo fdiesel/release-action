@@ -133,7 +133,7 @@ describe('utils', () => {
       const version = new SemVer('1.0.0-rc.0');
       expect(version.prerelease.length).toBe(2);
       expect(version.prerelease[0]).toBe('rc');
-      expect(version.prerelease[1]).toBe(1);
+      expect(version.prerelease[1]).toBe(0);
     });
   });
 });
