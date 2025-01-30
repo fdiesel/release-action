@@ -1,31 +1,31 @@
-import { enumParserFactory, matchWithRegexFactory } from "./parser";
-import { Phase } from "./phase";
+import { enumParserFactory, matchWithRegexFactory } from './parser';
+import { Phase } from './phase';
 
 export enum SemVerPreReleaseName {
-  Alpha = "alpha",
-  Beta = "beta",
-  Rc = "rc",
+  Alpha = 'alpha',
+  Beta = 'beta',
+  Rc = 'rc',
 }
 
 export const parseSemVerPreReleaseName = enumParserFactory(
   SemVerPreReleaseName,
   (type) => type.toLowerCase(),
-  (value) => value.toLowerCase()
+  (value) => value.toLowerCase(),
 );
 
 export enum BumpTarget {
-  Major = "major",
-  Minor = "minor",
-  Patch = "patch",
-  Alpha = "alpha",
-  Beta = "beta",
-  Rc = "rc",
+  Major = 'major',
+  Minor = 'minor',
+  Patch = 'patch',
+  Alpha = 'alpha',
+  Beta = 'beta',
+  Rc = 'rc',
 }
 
 export const parseBumpTarget = enumParserFactory(
   BumpTarget,
   (type) => type.toLowerCase(),
-  (value) => value.toLowerCase()
+  (value) => value.toLowerCase(),
 );
 
 export class SemVerPreRelease {
@@ -38,12 +38,12 @@ export class SemVerPreRelease {
   }
 
   public toString(): string {
-    return `${this.name}${this.version > 0 ? `.${this.version}` : ""}`;
+    return `${this.name}${this.version > 0 ? `.${this.version}` : ''}`;
   }
 
   public static bump(
     preRelease: SemVerPreRelease,
-    name: SemVerPreReleaseName
+    name: SemVerPreReleaseName,
   ): SemVerPreRelease {
     if (preRelease.name !== name) {
       return new SemVerPreRelease(name);
@@ -63,7 +63,7 @@ export class SemVer {
     major: number,
     minor: number,
     patch: number,
-    preRelease?: SemVerPreRelease
+    preRelease?: SemVerPreRelease,
   ) {
     this.major = major;
     this.minor = minor;
@@ -74,7 +74,7 @@ export class SemVer {
   toString(): string {
     return (
       `${this.major}.${this.minor}.${this.patch}` +
-      (this.preRelease ? `-${this.preRelease.toString()}` : "")
+      (this.preRelease ? `-${this.preRelease.toString()}` : '')
     );
   }
 
@@ -89,11 +89,11 @@ export class SemVer {
 
   private static matchSemVer = matchWithRegexFactory(
     /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([alpha|beta|rc]+)(?:\.(0|[1-9]\d*))?)?$/,
-    "major",
-    "minor",
-    "patch",
-    "preReleaseName",
-    "preReleaseVersion"
+    'major',
+    'minor',
+    'patch',
+    'preReleaseName',
+    'preReleaseVersion',
   );
 
   public static parse(version: string): SemVer {
@@ -109,15 +109,15 @@ export class SemVer {
       preReleaseName
         ? new SemVerPreRelease(
             parseSemVerPreReleaseName(preReleaseName),
-            preReleaseVersion ? parseInt(preReleaseVersion) : undefined
+            preReleaseVersion ? parseInt(preReleaseVersion) : undefined,
           )
-        : undefined
+        : undefined,
     );
   }
 
   public static bump(
     version: SemVer,
-    target: BumpTarget | SemVerPreReleaseName
+    target: BumpTarget | SemVerPreReleaseName,
   ): SemVer {
     switch (target) {
       case BumpTarget.Major:
@@ -138,14 +138,14 @@ export class SemVer {
             version.major,
             version.minor,
             version.patch,
-            new SemVerPreRelease(preReleaseName)
+            new SemVerPreRelease(preReleaseName),
           );
         else
           return new SemVer(
             version.major,
             version.minor,
             version.patch,
-            SemVerPreRelease.bump(version.preRelease, preReleaseName)
+            SemVerPreRelease.bump(version.preRelease, preReleaseName),
           );
     }
   }

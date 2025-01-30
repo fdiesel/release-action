@@ -1,4 +1,4 @@
 export enum Phase {
-  Dev = "dev",
-  Prod = "prod",
+  Dev = 'dev',
+  Prod = 'prod',
 }

@@ -1,8 +1,8 @@
-import semver, { SemVer } from "semver";
-import { Ref, RefTypes } from "./ref";
+import semver, { SemVer } from 'semver';
+import { Ref, RefTypes } from './ref';
 
 export class Tag {
-  public static readonly PREFIX: string = "v";
+  public static readonly PREFIX: string = 'v';
   public readonly version: SemVer;
   public readonly ref: Ref<RefTypes.TAGS>;
   public readonly majorRef: Ref<RefTypes.TAGS>;

@@ -1,7 +1,7 @@
 import {
   Commit,
   ConventionalCommitMessage,
-  ConventionalCommitType
+  ConventionalCommitType,
 } from './commit';
 import { Tag } from './tag';
 
@@ -12,18 +12,18 @@ export abstract class ReleaseBody {
     baseUri: string,
     prevTag: Tag | undefined,
     nextTag: Tag,
-    sections: (string | null)[]
+    sections: (string | null)[],
   ) {
     this.content = [
       ReleaseBody.createHeader(baseUri, prevTag, nextTag),
-      ...sections.filter((section) => section !== null)
+      ...sections.filter((section) => section !== null),
     ].join('\n');
   }
 
   private static createHeader(
     baseUri: string,
     prevTag: Tag | undefined,
-    nextTag: Tag
+    nextTag: Tag,
   ): string {
     const compareUri = prevTag
       ? `${baseUri}/compare/${prevTag.toString()}...${nextTag.toString()}`
@@ -36,10 +36,10 @@ export abstract class ReleaseBody {
   protected static createTypeSection(
     title: string,
     commits: Commit<unknown>[],
-    filter: (commit: ConventionalCommitMessage) => boolean
+    filter: (commit: ConventionalCommitMessage) => boolean,
   ): string | null {
     const filteredCommits = commits.filter(
-      (commit) => commit.message && filter(commit.message)
+      (commit) => commit.message && filter(commit.message),
     );
     if (!filteredCommits.length) return null;
     return `### ${title}\n${filteredCommits
@@ -47,7 +47,7 @@ export abstract class ReleaseBody {
         (commit) =>
           `- ${commit.message?.scope ? commit.message.scope + ': ' : ''}${
             commit.message!.header
-          } ([${commit.id}](${commit.uri}))`
+          } ([${commit.id}](${commit.uri}))`,
       )
       .join('\n')}`;
   }
@@ -62,24 +62,24 @@ export class ReleaseDevBody extends ReleaseBody {
     baseUri: string,
     prevTag: Tag | undefined,
     nextTag: Tag,
-    commits: Commit<unknown>[]
+    commits: Commit<unknown>[],
   ) {
     const sections = [
       ReleaseBody.createTypeSection(
         '⚠ BREAKING CHANGES',
         commits,
-        (commit) => commit.isBreakingChange
+        (commit) => commit.isBreakingChange,
       ),
       ReleaseBody.createTypeSection(
         'Features',
         commits,
-        (commit) => commit.type === ConventionalCommitType.FEAT
+        (commit) => commit.type === ConventionalCommitType.FEAT,
       ),
       ReleaseBody.createTypeSection(
         'Bug Fixes',
         commits,
-        (commit) => commit.type === ConventionalCommitType.FIX
-      )
+        (commit) => commit.type === ConventionalCommitType.FIX,
+      ),
     ];
     super(baseUri, prevTag, nextTag, sections);
   }
@@ -90,14 +90,14 @@ export class ReleaseProdBody extends ReleaseBody {
     baseUri: string,
     prevTag: Tag | undefined,
     nextTag: Tag,
-    commits: Commit<unknown>[]
+    commits: Commit<unknown>[],
   ) {
     const sections = [
       ReleaseBody.createTypeSection(
         'Features',
         commits,
-        (commit) => commit.type === ConventionalCommitType.FEAT
-      )
+        (commit) => commit.type === ConventionalCommitType.FEAT,
+      ),
     ];
     super(baseUri, prevTag, nextTag, sections);
   }

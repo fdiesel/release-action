@@ -9,7 +9,7 @@ import { GitHubProvider } from '../../src/providers/github';
 const provider: Provider<unknown, unknown> = new GitHubProvider(inputs.token);
 
 async function generateParams<Type extends RefTypes>(
-  type: Type
+  type: Type,
 ): Promise<{ ref: Ref<Type>; sha: string }> {
   const ref = new Ref(type, `test-${randomUUID()}`);
   const sha = await provider.getLatestCommitSha();
@@ -29,7 +29,7 @@ describe('github', () => {
     for (const type of Object.values(RefTypes)) {
       const { data } = await octokit.rest.git.listMatchingRefs({
         ...repo,
-        ref: `${type}/`
+        ref: `${type}/`,
       });
       refs.push(...data);
     }
@@ -39,7 +39,7 @@ describe('github', () => {
         const shortenedRef = ref.ref.replace(/^refs\//, '');
         await octokit.rest.git.deleteRef({
           ...repo,
-          ref: shortenedRef
+          ref: shortenedRef,
         });
       }
     }

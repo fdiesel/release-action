@@ -3,7 +3,7 @@ export enum RefTypes {
   TAGS = 'tags',
   PULL = 'pull',
   NOTES = 'notes',
-  REMOTES = 'remotes'
+  REMOTES = 'remotes',
 }
 
 export type ShortenedRef<Type extends RefTypes> = `${Type}/${string}`;
