@@ -36,20 +36,7 @@ exports.releaseToDiscord = releaseToDiscord;
 const core_1 = require("@actions/core");
 const github = __importStar(require("@actions/github"));
 const discord_js_1 = require("discord.js");
-function getAvatarUrl(username) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const response = yield fetch(`https://api.github.com/users/${username}`);
-            const data = yield response.json();
-            return data.avatar_url;
-        }
-        catch (error) {
-            void error;
-            return undefined;
-        }
-    });
-}
-function releaseToDiscord(version, content) {
+function releaseToDiscord(tag, content) {
     return __awaiter(this, void 0, void 0, function* () {
         const webhooks = (0, core_1.getInput)('discord_webhooks')
             .split(',')
@@ -57,8 +44,10 @@ function releaseToDiscord(version, content) {
         const appUrl = (0, core_1.getInput)('discord_release_app_url') || undefined;
         const color = (0, core_1.getInput)('discord_release_color') || undefined;
         const username = github.context.actor;
-        const avatarURL = yield getAvatarUrl(username);
+        const avatarURL = 'https://avatars.githubusercontent.com/' + username;
         const repo = github.context.repo.repo;
+        const repoUrl = `https://github.com/${username}/${repo}`;
+        const releaseUrl = `${repoUrl}/releases/tag/${tag}`;
         for (const webhook of webhooks) {
             const webhookClient = new discord_js_1.WebhookClient({
                 url: webhook,
@@ -66,12 +55,12 @@ function releaseToDiscord(version, content) {
             const fields = [
                 {
                     name: 'repo',
-                    value: repo,
+                    value: `[${repo}](${repoUrl})`,
                     inline: true,
                 },
                 {
-                    name: 'version',
-                    value: version,
+                    name: 'tag',
+                    value: `[${tag}](${releaseUrl})`,
                     inline: true,
                 },
             ];

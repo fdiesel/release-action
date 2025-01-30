@@ -53,7 +53,7 @@ function run() {
             if (releaseId && nextTag) {
                 yield provider.tags.update(nextTag.ref, latestCommitSha);
                 yield provider.releases.publish(releaseId, latestCommitSha);
-                yield (0, discord_1.releaseToDiscord)(nextTag.version.toString(), releaseNotes);
+                yield (0, discord_1.releaseToDiscord)(nextTag.toString(), releaseNotes);
             }
             const tag = nextTag || prevTag;
             if (tag && tag.version.prerelease.length === 0) {
