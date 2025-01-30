@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { RequestError } from '@octokit/request-error';
 import { Commit } from '../lib/commit';
 import { Provider, ProviderRefs, ProviderReleases } from '../lib/providers';
 import { FullyQualifiedRef, Ref, RefTypes } from '../lib/ref';
@@ -12,9 +13,6 @@ type GitHubCommitType = Awaited<
 type GitHubRefType = Awaited<
   ReturnType<Octokit['rest']['git']['getRef']>
 >['data'];
-type GitHubPermissionsType = Awaited<
-  ReturnType<Octokit['rest']['apps']['getRepoInstallation']>
->['data']['permissions'];
 
 class GitHubCommit extends Commit<GitHubCommitType> {
   constructor(commit: GitHubCommitType) {
@@ -23,7 +21,7 @@ class GitHubCommit extends Commit<GitHubCommitType> {
       commit.commit.message,
       commit.sha,
       commit.html_url,
-      commit.sha.substring(0, 7)
+      commit.sha.substring(0, 7),
     );
   }
 }
@@ -61,7 +59,7 @@ export class GitHubProvider
     this.baseUri = `${github.context.serverUrl}/${this.repo.owner}/${this.repo.repo}`;
 
     core.debug(
-      `Initialized GitHub Provider on branch: '${this.branchRef.name}'`
+      `Initialized GitHub Provider on branch: '${this.branchRef.name}'`,
     );
   }
 
@@ -69,7 +67,7 @@ export class GitHubProvider
     core.debug('Getting previous tag');
     const { data } = await this.octokit.rest.repos.listTags({
       ...this.repo,
-      per_page: 1
+      per_page: 1,
     });
     core.debug(`Previous tag: '${data.length > 0 ? data[0].name : ''}'`);
     return data.length > 0 ? Tag.parseTag(data[0].name) : undefined;
@@ -82,13 +80,13 @@ export class GitHubProvider
    */
   async getCommits(sinceTag?: Tag): Promise<Commit<GitHubCommitType>[]> {
     core.debug(
-      `Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`
+      `Getting commits since '${sinceTag ? sinceTag.toString() : 'beginning'}'`,
     );
     if (sinceTag) {
       const { data } = await this.octokit.rest.repos.compareCommits({
         ...this.repo,
         head: this.branchRef.name,
-        base: sinceTag.ref.fullyQualified
+        base: sinceTag.ref.fullyQualified,
       });
       core.debug(`Received commits: ${data.commits.length}`);
       return data.commits.reverse().map((commit) => new GitHubCommit(commit));
@@ -96,7 +94,7 @@ export class GitHubProvider
       const { data } = await this.octokit.rest.repos.listCommits({
         ...this.repo,
         head: this.branchRef.name,
-        sha: this.branchRef.name
+        sha: this.branchRef.name,
       });
       core.debug(`Received commits: ${data.length}`);
       return data.map((commit) => new GitHubCommit(commit));
@@ -107,7 +105,7 @@ export class GitHubProvider
     core.debug(`Getting commit SHA for tag '${tag.toString()}'`);
     const { data } = await this.octokit.rest.git.getRef({
       ...this.repo,
-      ref: tag.ref.shortened
+      ref: tag.ref.shortened,
     });
     core.debug(`Received commit SHA: '${data.object.sha}'`);
     return data.object.sha;
@@ -117,7 +115,7 @@ export class GitHubProvider
     core.debug('Getting latest commit SHA');
     const { data } = await this.octokit.rest.repos.getCommit({
       ...this.repo,
-      ref: this.branchRef.name
+      ref: this.branchRef.name,
     });
     core.debug(`Received latest commit SHA: '${data.sha}'`);
     return data.sha;
@@ -137,16 +135,17 @@ class GitHubRefs<Type extends RefTypes>
     try {
       const { data } = await this.octokit.rest.git.getRef({
         ...this.repo,
-        ref: ref.shortened
+        ref: ref.shortened,
       });
       core.debug(`Received ref: '${data.ref}'`);
       return data;
-    } catch (error: any) {
-      if (error?.status === 404) {
+    } catch (err: unknown) {
+      const error = err as RequestError;
+      if (error.status === 404) {
         core.debug(`Received ref: undefined`);
         return undefined;
       } else {
-        core.setFailed(error?.message);
+        core.setFailed(error.message);
         throw error;
       }
     }
@@ -157,7 +156,7 @@ class GitHubRefs<Type extends RefTypes>
     await this.octokit.rest.git.createRef({
       ...this.repo,
       ref: ref.fullyQualified,
-      sha
+      sha,
     });
     core.info(`Ref created: ${ref}`);
   }
@@ -167,7 +166,7 @@ class GitHubRefs<Type extends RefTypes>
     await this.octokit.rest.git.updateRef({
       ...this.repo,
       ref: ref.shortened,
-      sha
+      sha,
     });
     core.info(`Ref updated: ${ref}`);
   }
@@ -192,7 +191,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
       name: nextTag.toString(),
       body,
       prerelease: nextTag.version.prerelease.length > 0,
-      draft: true
+      draft: true,
     });
     core.info(`Release drafted: ${data.id.toString()}`);
     return data.id.toString();
@@ -204,7 +203,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
       ...this.repo,
       release_id: parseInt(id),
       target_commitish: sha,
-      draft: false
+      draft: false,
     });
     core.info(`Release published: ${id}`);
   }
@@ -213,7 +212,7 @@ class GitHubReleases extends GitHubAction implements ProviderReleases {
     core.debug(`Deleting release: '${id}'`);
     await this.octokit.rest.repos.deleteRelease({
       ...this.repo,
-      release_id: parseInt(id)
+      release_id: parseInt(id),
     });
     core.info(`Release deleted: ${id}`);
   }

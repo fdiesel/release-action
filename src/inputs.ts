@@ -1,5 +1,5 @@
-import { getInput, setFailed } from "@actions/core";
-import { Phase } from "./lib/phase";
+import { getInput, setFailed } from '@actions/core';
+import { Phase } from './lib/phase';
 
 function getValidatedInput<T>({
   name,
@@ -23,19 +23,19 @@ function getValidatedInput<T>({
 
 export const inputs = {
   token: getValidatedInput<string>({
-    name: "token",
+    name: 'token',
     required: true,
     validateFn: (input) => input.length > 0,
     parseFn: (input) => input,
   }),
   phase: getValidatedInput<Phase>({
-    name: "phase",
+    name: 'phase',
     required: true,
     validateFn: (input) =>
       Object.values(Phase).includes(input.toLocaleLowerCase() as Phase),
     parseFn: (input) =>
       Object.values(Phase).find(
-        (phase) => phase === input.toLocaleLowerCase()
+        (phase) => phase === input.toLocaleLowerCase(),
       )!,
   }),
 };

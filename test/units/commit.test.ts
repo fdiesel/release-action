@@ -12,24 +12,24 @@ describe('commit', () => {
     describe('parse', () => {
       test('should parse feat', () => {
         expect(() =>
-          ConventionalCommitMessage.parse('feat: add feature')
+          ConventionalCommitMessage.parse('feat: add feature'),
         ).not.toThrow();
       });
       test('should parse fix', () => {
         expect(() =>
-          ConventionalCommitMessage.parse('fix: fix bug')
+          ConventionalCommitMessage.parse('fix: fix bug'),
         ).not.toThrow();
       });
       test('should parse breaking change !', () => {
         expect(() =>
-          ConventionalCommitMessage.parse('feat!: add feature')
+          ConventionalCommitMessage.parse('feat!: add feature'),
         ).not.toThrow();
       });
       test('should parse breaking change BREAKING CHANGE:', () => {
         const commitMessageString =
           'feat: add feature\n\nBREAKING CHANGE: this is a breaking change';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -39,7 +39,7 @@ describe('commit', () => {
         const commitMessageString =
           'feat: add feature\n\nBREAKING-CHANGE: this is a breaking change';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -48,7 +48,7 @@ describe('commit', () => {
       test('should parse breaking change BREAKING CHANGE as type', () => {
         const commitMessageString = 'BREAKING CHANGE: add feature';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -57,7 +57,7 @@ describe('commit', () => {
       test('should parse breaking change BREAKING-CHANGE as type', () => {
         const commitMessageString = 'BREAKING-CHANGE: add feature';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -66,7 +66,7 @@ describe('commit', () => {
       test('should parse scope', () => {
         const commitMessageString = 'feat(scope): add feature';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -75,7 +75,7 @@ describe('commit', () => {
       test('should parse breaking change ! with scope', () => {
         const commitMessageString = 'feat(scope)!: add feature';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -86,7 +86,7 @@ describe('commit', () => {
         const commitMessageString =
           'BREAKING CHANGE(scope): BREAKING CHANGE: this is a breaking change';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -97,7 +97,7 @@ describe('commit', () => {
         const commitMessageString =
           'BREAKING-CHANGE(scope): BREAKING CHANGE: this is a breaking change';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
@@ -107,7 +107,7 @@ describe('commit', () => {
       test('should parse header', () => {
         const commitMessageString = 'feat: add feature';
         expect(() =>
-          ConventionalCommitMessage.parse(commitMessageString)
+          ConventionalCommitMessage.parse(commitMessageString),
         ).not.toThrow();
         const commitMessage =
           ConventionalCommitMessage.parse(commitMessageString);
