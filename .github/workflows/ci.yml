@@ -72,6 +72,7 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          fail-on-cache-miss: false
 
       - name: Test
         run: npm run test
