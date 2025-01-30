@@ -12,7 +12,8 @@ export async function releaseToDiscord(
 ): Promise<void> {
   const webhooks = getInput('discord_webhooks')
     .split(',')
-    .map((webhook) => webhook.trim());
+    .map((webhook) => webhook.trim())
+    .filter((webhook) => webhook.length > 0);
   const appUrl = getInput('discord_release_app_url') || undefined;
   const color = getInput('discord_release_color') || undefined;
   const username = github.context.actor;
