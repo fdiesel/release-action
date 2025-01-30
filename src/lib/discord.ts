@@ -20,8 +20,9 @@ export async function releaseToDiscord(
   const color = getInput('discord_release_color') || undefined;
   const username = github.context.actor;
   const avatarURL = 'https://avatars.githubusercontent.com/' + username;
+  const owner = github.context.repo.owner;
   const repo = github.context.repo.repo;
-  const repoUrl = `https://github.com/${username}/${repo}`;
+  const repoUrl = `https://github.com/${owner}/${repo}`;
   const releaseUrl = `${repoUrl}/releases/tag/${tag}`;
 
   for (const webhook of webhooks) {
@@ -29,6 +30,11 @@ export async function releaseToDiscord(
       url: webhook,
     });
     const fields: APIEmbedField[] = [
+      {
+        name: 'repo',
+        value: `[${owner}/${repo}](${repoUrl})`,
+        inline: true,
+      },
       {
         name: 'version',
         value: version,
@@ -49,7 +55,7 @@ export async function releaseToDiscord(
         {
           title: appName,
           description:
-            `###${appName ? '' : ` \[${username}/${repo}\]`} New release published: ${tag}](${releaseUrl})\n` +
+            `###${appName ? '' : ` \[${owner}/${repo}\]`} New release published: ${tag}](${releaseUrl})\n` +
             content,
           color: color ? parseInt(color.replace('#', ''), 16) : 0x1e1f22,
           fields,
