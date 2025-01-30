@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const inputs_1 = require("./inputs");
+const discord_1 = require("./lib/discord");
 const ref_1 = require("./lib/ref");
 const tag_1 = require("./lib/tag");
 const github_1 = require("./providers/github");
@@ -41,6 +42,7 @@ const status = core.getInput('_job_status');
 const releaseId = core.getState('releaseId');
 const prevVersion = core.getState('prevVersion');
 const nextVersion = core.getState('nextVersion');
+const releaseNotes = core.getState('releaseNotes');
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const prevTag = prevVersion ? tag_1.Tag.parseVersion(prevVersion) : undefined;
@@ -51,6 +53,7 @@ function run() {
             if (releaseId && nextTag) {
                 yield provider.tags.update(nextTag.ref, latestCommitSha);
                 yield provider.releases.publish(releaseId, latestCommitSha);
+                yield (0, discord_1.releaseToDiscord)(nextTag.version.toString(), releaseNotes);
             }
             const tag = nextTag || prevTag;
             if (tag && tag.version.prerelease.length === 0) {
