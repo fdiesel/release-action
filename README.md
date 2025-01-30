@@ -29,8 +29,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # required
           phase: prod # phase (dev -> 0.y.z / prod -> x>0.y.z) (default: dev)
+          app_name: # optional app name to provide with discord release
+          app_url: # optional app url to provide with discord release
           discord_webhooks: # optional comma separated list of webhooks to release to
-          discord_release_app_url: # optional app url to provide with discord release
           discord_release_color: # optional release color
 ```
 

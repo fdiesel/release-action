@@ -134,6 +134,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           phase: prod
+          discord_webhooks: ${{ secrets.DISCORD_WEBHOOK }}
+          app_name: Release Action
+          app_url: https://github.com/fdiesel/release-action
 
       - name: Setup Node.js
         if: steps.release.outputs.created == 'true'

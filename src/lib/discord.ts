@@ -8,13 +8,15 @@ import {
 
 export async function releaseToDiscord(
   tag: string,
+  version: string,
   content: string,
 ): Promise<void> {
   const webhooks = getInput('discord_webhooks')
     .split(',')
     .map((webhook) => webhook.trim())
     .filter((webhook) => webhook.length > 0);
-  const appUrl = getInput('discord_release_app_url') || undefined;
+  const appName = getInput('app_name') || undefined;
+  const appUrl = getInput('app_url') || undefined;
   const color = getInput('discord_release_color') || undefined;
   const username = github.context.actor;
   const avatarURL = 'https://avatars.githubusercontent.com/' + username;
@@ -28,20 +30,15 @@ export async function releaseToDiscord(
     });
     const fields: APIEmbedField[] = [
       {
-        name: 'repo',
-        value: `[${repo}](${repoUrl})`,
-        inline: true,
-      },
-      {
-        name: 'tag',
-        value: `[${tag}](${releaseUrl})`,
+        name: 'version',
+        value: version,
         inline: true,
       },
     ];
-    if (appUrl) {
-      fields.push({
+    if (appName || appUrl) {
+      fields.unshift({
         name: 'app',
-        value: appUrl,
+        value: appUrl ? `[${appName || appUrl}](${appUrl})` : appName!,
         inline: true,
       });
     }
@@ -50,9 +47,9 @@ export async function releaseToDiscord(
       avatarURL,
       embeds: [
         {
-          title: 'Release',
+          title: `[\[${username}/${repo}\] New release published: ${tag}](${releaseUrl})`,
           description: content,
-          color: color ? parseInt(color.replace('#', ''), 16) : undefined,
+          color: color ? parseInt(color.replace('#', ''), 16) : 0x1e1f22,
           fields,
         },
       ],

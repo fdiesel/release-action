@@ -16,11 +16,14 @@ inputs:
     description: The phase of the release (dev / prod)
     default: dev
     required: true
+  app_name:
+    description: The name of the app to link to in the discord release
+    required: false
+  app_url:
+    description: The URL of the app to link to in the discord release
+    required: false
   discord_webhooks:
     description: The discord webhook to send releases to
-    required: false
-  discord_release_app_url:
-    description: The URL of the app to link to in the discord release
     required: false
   discord_release_color:
     description: The color of the discord release
