@@ -47,8 +47,9 @@ export async function releaseToDiscord(
       avatarURL,
       embeds: [
         {
-          title: `[\[${username}/${repo}\] New release published: ${tag}](${releaseUrl})`,
-          description: content,
+          description:
+            `[\[${username}/${repo}\] New release published: ${tag}](${releaseUrl})\n` +
+            content,
           color: color ? parseInt(color.replace('#', ''), 16) : 0x1e1f22,
           fields,
         },
