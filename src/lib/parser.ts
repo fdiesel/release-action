@@ -1,4 +1,4 @@
-export function enumParserFactory<T extends Object>(
+export function enumParserFactory<T extends object>(
   type: T,
   mapTypeValue: (type: string) => string,
   mapValue: (value: string) => string,

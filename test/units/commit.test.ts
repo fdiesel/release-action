@@ -8,7 +8,7 @@ export class TestCommit extends Commit<undefined> {
 }
 
 describe('commit', () => {
-  describe("conventional commit message", () => {
+  describe('conventional commit message', () => {
     describe('parse', () => {
       test('should parse feat', () => {
         expect(() =>
