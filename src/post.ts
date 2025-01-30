@@ -23,7 +23,7 @@ async function run() {
     if (releaseId && nextTag) {
       await provider.tags.update(nextTag.ref, latestCommitSha);
       await provider.releases.publish(releaseId, latestCommitSha);
-      await releaseToDiscord(nextTag.version.toString(), releaseNotes);
+      await releaseToDiscord(nextTag.toString(), releaseNotes);
     }
     const tag = nextTag || prevTag;
     if (tag && tag.version.prerelease.length === 0) {

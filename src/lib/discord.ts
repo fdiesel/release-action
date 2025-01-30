@@ -6,19 +6,8 @@ import {
   WebhookMessageCreateOptions,
 } from 'discord.js';
 
-async function getAvatarUrl(username: string): Promise<string | undefined> {
-  try {
-    const response = await fetch(`https://api.github.com/users/${username}`);
-    const data = await response.json();
-    return data.avatar_url;
-  } catch (error) {
-    void error;
-    return undefined;
-  }
-}
-
 export async function releaseToDiscord(
-  version: string,
+  tag: string,
   content: string,
 ): Promise<void> {
   const webhooks = getInput('discord_webhooks')
@@ -27,8 +16,10 @@ export async function releaseToDiscord(
   const appUrl = getInput('discord_release_app_url') || undefined;
   const color = getInput('discord_release_color') || undefined;
   const username = github.context.actor;
-  const avatarURL = await getAvatarUrl(username);
+  const avatarURL = 'https://avatars.githubusercontent.com/' + username;
   const repo = github.context.repo.repo;
+  const repoUrl = `https://github.com/${username}/${repo}`;
+  const releaseUrl = `${repoUrl}/releases/tag/${tag}`;
 
   for (const webhook of webhooks) {
     const webhookClient = new WebhookClient({
@@ -37,12 +28,12 @@ export async function releaseToDiscord(
     const fields: APIEmbedField[] = [
       {
         name: 'repo',
-        value: repo,
+        value: `[${repo}](${repoUrl})`,
         inline: true,
       },
       {
-        name: 'version',
-        value: version,
+        name: 'tag',
+        value: `[${tag}](${releaseUrl})`,
         inline: true,
       },
     ];
